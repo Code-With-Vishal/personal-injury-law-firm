@@ -1,0 +1,1916 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Northpoint Homes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&amp;family=Karla:ital,wght@0,400..700;1,400&amp;display=swap">
+<style>
+/* Layout: an architectural model table. One fixed WebGL canvas places a clay house into stage slots measured from the DOM; content runs in a familiar sales order. */
+:root{
+  --ground:#F5F4F0; --paper:#FBFAF7; --card-2:#F1EEE7; --table:#ECE9E2; --table-hi:#F4F2ED; --mat:#E2DED5; --line:#DAD6CC; --line-soft:#E6E2DA;
+  --ink:#181A1F; --ink-2:#4B4F57; --ink-3:#62666E;
+  --forest:#2E5E4E; --forest-2:#244B3E; --forest-tint:#E4ECE7; --on-forest:#F5F4F0; --on-forest-2:#CFDDD5;
+  --wood:#C9A27A; --wood-ink:#7A5733; --wood-tint:#F1E6D8;
+  --scrim:rgba(24,26,31,.42); --shadow:rgba(46,74,62,.22); --shadow-2:rgba(46,74,62,.10); --glare:rgba(255,255,255,.75); --glare-0:rgba(255,255,255,0); --nav-bg:rgba(245,244,240,.88);
+  --f-display:"Fraunces","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --f-text:"Karla","Helvetica Neue",Arial,sans-serif;
+  --navh:58px; --gutter:clamp(16px,4vw,56px); --maxw:1240px;
+  --r-ui:7px; --r-card:16px; --r-stage:22px;
+  color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--navh) + 12px)}
+body{margin:0;background:var(--ground);color:var(--ink);font:400 1.0625rem/1.6 var(--f-text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+img,svg{max-width:100%}
+[hidden]{display:none!important}
+main{overflow-x:clip}
+h1,h2,h3{font-family:var(--f-display);font-weight:560;letter-spacing:-.018em;line-height:1.04;margin:0;text-wrap:balance;font-variation-settings:"SOFT" 100,"WONK" 0}
+h2{font-size:clamp(2rem,1.2rem + 2.6vw,3.5rem)}
+h3{font-size:clamp(1.3rem,1.1rem + .6vw,1.65rem);line-height:1.12}
+p{margin:0;text-wrap:pretty}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--forest);outline-offset:3px;border-radius:6px}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:fixed;left:12px;top:-60px;z-index:200;background:var(--ink);color:var(--ground);padding:10px 14px;border-radius:var(--r-ui);text-decoration:none;font-weight:700}
+.skip:focus{top:calc(12px + env(safe-area-inset-top,0px))}
+.wrap{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+.eyebrow{font:700 .76rem/1.2 var(--f-text);letter-spacing:.14em;text-transform:uppercase;color:var(--forest)}
+.sec{padding-block:clamp(56px,7vw,112px)}
+.sec-head{display:grid;gap:14px;max-width:760px}
+.sec-sub{color:var(--ink-2);font-size:clamp(1.02rem,.98rem + .25vw,1.18rem);max-width:58ch}
+.mark{font:700 .7em/1.4 var(--f-text);letter-spacing:.05em;color:var(--wood-ink);background:var(--wood-tint);padding:.12em .45em;border-radius:4px;white-space:nowrap;vertical-align:.12em}
+.hint{display:inline-flex;align-items:center;gap:8px;font-size:.84rem;color:var(--ink-2)}
+.hint svg{flex:none}
+
+/* Buttons */
+.btn{appearance:none;border:0;display:inline-flex;align-items:center;justify-content:center;gap:.65em;min-height:50px;padding:.95rem 1.35rem;border-radius:var(--r-ui);font:700 1rem/1.1 var(--f-text);letter-spacing:.005em;text-decoration:none;cursor:pointer;transition:transform .25s cubic-bezier(.2,.8,.2,1),background-color .25s,box-shadow .25s}
+.btn svg{width:18px;height:18px;flex:none;transition:transform .25s}
+.btn-primary{background:var(--forest);color:var(--on-forest);box-shadow:0 14px 28px -18px var(--shadow)}
+.btn-primary:hover{background:var(--forest-2);transform:translateY(-1px)}
+.btn-primary:hover svg{transform:translateX(3px)}
+.btn-primary:active{transform:translateY(1px)}
+.btn-line{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn-line:hover{background:var(--ink);color:var(--ground)}
+.btn-sm{min-height:40px;padding:.6rem .95rem;font-size:.92rem}
+.link{font-weight:700;color:var(--ink);text-decoration:underline;text-decoration-color:var(--wood);text-decoration-thickness:2px;text-underline-offset:.32em}
+.link:hover{text-decoration-color:var(--forest)}
+
+/* Nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;height:var(--navh);background:var(--nav-bg);-webkit-backdrop-filter:saturate(1.2) blur(12px);backdrop-filter:saturate(1.2) blur(12px);border-bottom:1px solid transparent;transition:border-color .3s}
+.nav.scrolled{border-bottom-color:var(--line)}
+.nav-in{height:100%;display:flex;align-items:center;gap:20px}
+.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font:600 1.18rem/1 var(--f-display);font-variation-settings:"SOFT" 100;letter-spacing:-.01em;white-space:nowrap}
+.brand svg{width:30px;height:30px;color:var(--forest)}
+.brand i{font-style:italic;font-weight:400;color:var(--forest)}
+.nav-links{display:flex;gap:4px;list-style:none;margin:0 0 0 auto;padding:0}
+.nav-links a{display:block;padding:8px 12px;border-radius:6px;text-decoration:none;font-size:.95rem;color:var(--ink-2);font-weight:600}
+.nav-links a:hover{color:var(--ink);background:var(--table)}
+.nav-links a[aria-current="true"]{color:var(--forest)}
+.nav .btn{margin-left:auto}
+.nav-links + .btn{margin-left:8px}
+@media (max-width:959px){.nav-links{display:none}}
+@media (max-width:599px){.nav .btn{display:none}:root{--navh:54px}}
+@media (max-height:500px){:root{--navh:50px}}
+
+/* Stage: model table where the 3D house lands */
+.stage{position:relative;border-radius:var(--r-stage);background:radial-gradient(120% 95% at 50% 32%,var(--table-hi) 0%,var(--table) 70%);box-shadow:inset 0 0 0 1px var(--line-soft);overflow:hidden}
+.stage::before{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--mat) 1px,transparent 1px),linear-gradient(90deg,var(--mat) 1px,transparent 1px);background-size:30px 30px;background-position:center;opacity:.55;-webkit-mask-image:radial-gradient(85% 80% at 50% 50%,#000 30%,transparent 80%);mask-image:radial-gradient(85% 80% at 50% 50%,#000 30%,transparent 80%);pointer-events:none}
+.stage-tag{position:absolute;top:14px;left:16px;font:700 .68rem/1 var(--f-text);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.stage-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;white-space:nowrap;font-size:.8rem;font-weight:600;color:var(--ink-2);background:var(--paper);border:1px solid var(--line);padding:6px 12px;border-radius:999px}
+.stage[role="button"]{cursor:grab;touch-action:pan-y;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+.stage.is-dragging{cursor:grabbing}
+.stage .fallback{position:absolute;inset:8% 6% 14%;width:88%;height:78%;display:none}
+.no-gl .stage .fallback{display:block}
+.no-gl .stage-hint{display:none}
+
+/* Hero */
+.hero{padding-block:clamp(16px,4vh,56px) clamp(56px,9vh,110px)}
+.hero-grid{display:grid;gap:clamp(20px,3vw,48px);align-items:center}
+.hero-copy{display:grid;gap:clamp(14px,2.2vh,22px);align-content:center;min-width:0}
+.hero h1{font-size:clamp(2.3rem,min(1.2rem + 4.4vw,10.6vh),5.3rem);font-weight:580;letter-spacing:-.025em;line-height:1.0}
+.hero h1 em{font-style:italic;font-weight:420;color:var(--forest)}
+.lede{font-size:clamp(1.1rem,1rem + .45vw,1.35rem);color:var(--ink-2);max-width:34ch}
+.hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;margin-top:4px}
+.fine{font-size:.86rem;color:var(--ink-3);max-width:46ch}
+.stage-hero{height:clamp(280px,64vh,700px)}
+@media (min-width:900px){.hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}}
+@media (max-width:899px){.stage-hero{height:clamp(250px,74vw,440px)}}
+@media (min-width:600px) and (max-width:899px) and (orientation:landscape){.hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.stage-hero{height:min(74vh,420px)}}
+@media (max-height:500px){.hero h1{font-size:clamp(1.8rem,4.6vw,2.5rem)}.lede{font-size:1rem}.hero-copy{gap:10px}.fine{display:none}.btn{min-height:44px;padding:.75rem 1.1rem}}
+
+/* Problem: sticky stack */
+.problem-grid{display:grid;gap:40px}
+.problem-main{display:grid;gap:clamp(28px,4vw,48px);min-width:0}
+.stack{list-style:none;margin:0;padding:0}
+.pcard{position:sticky;top:calc(var(--navh) + 3vh + var(--i) * 16px);margin-bottom:24vh;perspective:1200px}
+.pcard:last-child{margin-bottom:6vh}
+.pcard-in{position:relative;display:grid;gap:14px;grid-template-columns:minmax(0,1fr);background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);padding:clamp(22px,3vw,34px);min-height:clamp(250px,40vh,330px);box-shadow:0 1px 0 var(--line-soft),0 30px 50px -36px var(--shadow);transform-origin:50% 0;will-change:transform}
+.pcard-shade{position:absolute;inset:0;border-radius:inherit;background:var(--ink);opacity:0;pointer-events:none}
+.pcard-n{font:700 .74rem/1 var(--f-text);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.pcard h3{font-size:clamp(1.6rem,1.2rem + 1.4vw,2.3rem)}
+.pcard p{color:var(--ink-2);max-width:44ch}
+.pcard svg.ill{width:132px;height:84px;color:var(--forest);justify-self:end;margin-top:auto}
+.problem-side{display:none}
+@media (min-width:900px){
+  .problem-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:start}
+  .problem-side{display:block;position:sticky;top:calc(var(--navh) + 6vh);height:min(calc(100svh - var(--navh) - 12vh),600px)}
+  .stage-problem{height:100%}
+}
+.mode-stack .pcard{position:static;margin-bottom:16px}
+
+/* How it works: default stacked, swipe on phones, pinned horizontal on desktop */
+.how{padding-block:clamp(56px,7vw,112px)}
+.how-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 40px}
+.how-head .sec-head{max-width:640px}
+.hprog{display:flex;align-items:center;gap:14px;font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:.92rem}
+.hprog b{color:var(--ink);font-weight:700}
+.bar{display:block;width:120px;height:3px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:var(--forest);transform-origin:0 50%;transform:scaleX(var(--p,.2));transition:transform .3s}
+.mode-stack .hprog{display:none}
+.how-body{max-width:var(--maxw);margin:32px auto 0;padding-inline:var(--gutter);display:grid;gap:20px}
+.how-stage{height:clamp(240px,60vw,420px)}
+.how-viewport{min-width:0}
+.how-track{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.step{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);padding:clamp(22px,3vw,32px)}
+.step-in{display:grid;gap:12px;position:relative}
+.step-num{font:300 clamp(3.2rem,2rem + 4vw,6.5rem)/.9 var(--f-display);font-variation-settings:"SOFT" 100;color:var(--forest);letter-spacing:-.04em}
+.step-when{font:700 .76rem/1 var(--f-text);letter-spacing:.12em;text-transform:uppercase;color:var(--wood-ink)}
+.step h3{font-size:clamp(1.7rem,1.3rem + 1.4vw,2.6rem)}
+.step p{color:var(--ink-2);max-width:42ch}
+.ticks{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:8px}
+.ticks li{display:flex;gap:10px;align-items:flex-start;font-size:.97rem}
+.ticks li::before{content:"";flex:none;width:16px;height:16px;margin-top:4px;border-radius:50%;background:var(--forest-tint);box-shadow:inset 0 0 0 4px var(--forest-tint),inset 0 0 0 9px var(--forest)}
+.how-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 24px}
+.dots{display:flex;gap:2px}
+.dots button{appearance:none;border:0;background:none;width:30px;height:30px;display:grid;place-items:center;cursor:pointer;border-radius:50%}
+.dots button::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--line);transition:background .25s,transform .25s}
+.dots button[aria-current="true"]::before{background:var(--forest);transform:scale(1.35)}
+.mode-stack .dots,.mode-stack .swipe-hint{display:none}
+.note{font-size:.84rem;color:var(--ink-3)}
+.step-cta{margin-top:10px}
+@media (min-width:900px){
+  .mode-stack .how-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+  .mode-stack .how-stage{grid-column:2;grid-row:1 / span 2;position:sticky;top:calc(var(--navh) + 24px);height:72svh}
+  .mode-stack .how-viewport,.mode-stack .how-foot{grid-column:1}
+}
+/* swipe */
+.mode-swipe .how-body{max-width:none;padding-inline:0;display:block}
+.mode-swipe .how-stage{margin-inline:var(--gutter);height:min(clamp(230px,58vw,400px),62svh)}
+.mode-swipe .how-viewport{overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:var(--gutter);padding:16px var(--gutter) 6px;scrollbar-width:none}
+.mode-swipe .how-viewport::-webkit-scrollbar{display:none}
+.mode-swipe .how-track{display:flex;gap:12px;width:max-content}
+.mode-swipe .step{width:min(82vw,440px);scroll-snap-align:start}
+.mode-swipe .how-foot{padding-inline:var(--gutter);margin-top:10px}
+.mode-swipe .step-num{font-size:3rem}
+/* pinned horizontal */
+.mode-h .how{padding:0}
+.mode-h .how-pin{height:100vh;height:100svh;display:flex;flex-direction:column;padding-top:calc(var(--navh) + 3vh);overflow:hidden}
+.mode-h .how-body{flex:1;position:relative;min-height:0;margin:2vh 0 0;padding:0;max-width:none;display:block}
+.mode-h .how-viewport{position:absolute;inset:0;overflow:hidden;container-type:inline-size}
+.mode-h .how-track{display:flex;gap:0;width:max-content;height:100%;background-image:linear-gradient(var(--mat) 1px,transparent 1px),linear-gradient(90deg,var(--mat) 1px,transparent 1px);background-size:32px 32px;will-change:transform}
+.mode-h .step{width:100cqw;height:100%;background:transparent;border:0;border-radius:0;display:flex;align-items:center;padding:0 0 9vh max(var(--gutter),calc((100cqw - var(--maxw)) / 2 + var(--gutter)))}
+.mode-h .step + .step{border-left:1px dashed var(--line)}
+.mode-h .step-in{width:min(38%,500px);background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);box-shadow:0 30px 50px -40px var(--shadow);padding:clamp(18px,3vh,32px) clamp(20px,2.4vw,34px);gap:clamp(6px,1.2vh,12px)}
+.mode-h .step-num{font-size:clamp(3rem,10vh,7rem)}
+.mode-h .how-stage{position:absolute;z-index:2;top:0;bottom:7vh;right:max(var(--gutter),calc((100vw - var(--maxw)) / 2 + var(--gutter)));width:50%;background:none;box-shadow:none;border-radius:0}
+.mode-h .how-stage{height:auto}
+.mode-h .how-stage::before{display:none}
+.mode-h .how-foot{position:absolute;z-index:3;left:0;right:0;bottom:1.6vh;max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+.mode-h .swipe-hint{display:none}
+@media (max-height:700px){.mode-h .how-head h2{font-size:clamp(1.7rem,6.4vh,3rem)}.mode-h .step{padding-bottom:7vh}.mode-h .step-num{font-size:2.4rem}.mode-h .step h3{font-size:clamp(1.4rem,4.4vh,2.2rem)}.mode-h .ticks li{font-size:.9rem}.mode-h .step p{font-size:.95rem;line-height:1.5}.mode-h .ticks{gap:2px}.mode-h .step-cta{margin-top:4px}.mode-h .step-cta .btn{min-height:42px;padding:.6rem 1rem}.mode-h .proof-head h2{font-size:clamp(1.7rem,6.4vh,3rem)}}
+@media (orientation:portrait){
+  .mode-h .how-stage{top:0;bottom:auto;height:46%;left:var(--gutter);right:var(--gutter);width:auto}
+  .mode-h .step{align-items:flex-end;padding-bottom:10vh}
+  .mode-h .step-in{width:min(78%,620px)}
+}
+.how-hint-h{display:none}
+.mode-h .how-hint-h{display:inline-flex}
+
+/* Benefits: deck deal */
+.ben-head{display:grid;gap:24px;align-items:end}
+.stage-ben{height:clamp(220px,30vw,360px)}
+@media (min-width:900px){.ben-head{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.deck-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:clamp(28px,4vw,44px)}
+.deck{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:560px){.deck{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:900px){.deck{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.deal{position:relative;z-index:40}
+.bcard{position:relative;height:100%;transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.9,.25,1);cursor:pointer;border-radius:var(--r-card)}
+.bcard.is-tilting{transition:transform .1s linear}
+.bflip{display:grid;height:100%;transform-style:preserve-3d;transition:transform .85s cubic-bezier(.34,1.35,.5,1)}
+.bcard.flipped .bflip{transform:rotateY(180deg)}
+.face{grid-area:1 / 1;display:flex;flex-direction:column;gap:10px;min-height:236px;padding:24px 24px 70px;border-radius:var(--r-card);-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.face.front{background:linear-gradient(180deg,var(--paper),var(--card-2));border:1px solid var(--line);box-shadow:0 26px 40px -34px var(--shadow)}
+.face.back{background:var(--forest);color:var(--on-forest);transform:rotateY(180deg)}
+.face .ico{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--forest-tint);color:var(--forest)}
+.face.back .ico{background:rgba(255,255,255,.12);color:var(--on-forest)}
+.face .ico svg{width:22px;height:22px}
+.face h3{font-size:1.45rem}
+.face p{color:var(--ink-2);font-size:1rem}
+.face.back p{color:var(--on-forest-2)}
+.face.back .mark{background:rgba(255,255,255,.14);color:var(--on-forest)}
+.glare{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at var(--gx,50%) var(--gy,0%),var(--glare),var(--glare-0) 52%);opacity:0;transition:opacity .35s;transform:translateZ(2px)}
+.bcard.is-tilting .glare{opacity:.9}
+.flip-btn{position:absolute;left:24px;bottom:20px;transform:translateZ(3px);appearance:none;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:6px 12px 6px 10px;font-size:.84rem;font-weight:700;cursor:pointer}
+.flip-btn svg{width:16px;height:16px;transition:transform .5s}
+.bcard.flipped .flip-btn svg{transform:rotate(180deg)}
+
+/* Proof: cylinder */
+.proof-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 40px}
+.cyl-view{margin-top:32px}
+.cyl{list-style:none;margin:0;padding:0;display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
+.rcard{position:relative;display:flex;flex-direction:column;gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);padding:24px;box-shadow:0 30px 50px -40px var(--shadow)}
+.rc-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rc-k{font:700 .72rem/1 var(--f-text);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.rc-badge{font:700 .72rem/1 var(--f-text);letter-spacing:.1em;text-transform:uppercase;color:var(--on-forest);background:var(--forest);padding:5px 8px;border-radius:4px}
+.rcard h3{font-size:1.45rem}
+.rcard dl{margin:0;display:grid;gap:0;border-top:1px solid var(--line)}
+.rcard dl div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+.rcard dt{color:var(--ink-2)}
+.rcard dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+.rc-quote{font:italic 400 1.02rem/1.5 var(--f-display);color:var(--ink-2)}
+.rc-sketch{width:100%;height:46px;color:var(--wood);margin-top:auto}
+.cyl-ctrl{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:20px}
+.cyl-ctrl .arrows{display:flex;gap:8px}
+.icon-btn{appearance:none;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;border:1.5px solid var(--ink);background:transparent;cursor:pointer;transition:background .2s,color .2s}
+.icon-btn:hover{background:var(--ink);color:var(--ground)}
+.icon-btn svg{width:18px;height:18px}
+.mode-stack .cyl-ctrl{display:none}
+.mode-swipe .cyl-view{overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:var(--gutter);padding:6px var(--gutter) 24px;margin-inline:calc(var(--gutter) * -1);scrollbar-width:none}
+.mode-swipe .cyl-view::-webkit-scrollbar{display:none}
+.mode-swipe .cyl{display:flex;width:max-content;gap:12px}
+.mode-swipe .rcard{width:min(80vw,360px);scroll-snap-align:start}
+.mode-swipe .cyl-ctrl .arrows{display:none}
+.mode-h .proof{padding:0}
+.mode-h .proof-pin{height:100vh;height:100svh;display:flex;flex-direction:column;padding-top:calc(var(--navh) + 3vh);padding-bottom:3vh;overflow:hidden}
+.mode-h .cyl-view{flex:1;min-height:0;margin-top:0;padding-block:1.5vh;display:grid;place-items:center;perspective:1700px;touch-action:pan-y;cursor:grab;-webkit-user-select:none;user-select:none}
+.mode-h .cyl-view.is-dragging{cursor:grabbing}
+.mode-h .cyl{display:block;position:relative;width:clamp(250px,24vw,330px);height:min(100%,450px);transform-style:preserve-3d}
+.mode-h .rcard{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;overflow:hidden}
+.mode-h .cyl-ctrl{margin-top:1vh}
+@media (max-height:700px){.mode-h .rcard{gap:8px;padding:18px}.mode-h .rcard dl div{padding:6px 0;font-size:.9rem}.mode-h .rc-quote{font-size:.95rem}.mode-h .rc-sketch{display:none}}
+
+/* Compare */
+.cmp-wrap{position:relative;margin-top:clamp(28px,4vw,44px);border-radius:var(--r-card);overflow:hidden;border:1px solid var(--line);--split:50%;touch-action:pan-y}
+.cmp{width:100%;border-collapse:collapse;table-layout:fixed}
+.cmp col.c-old{width:var(--split)}
+.cmp th,.cmp td{text-align:left;vertical-align:top;padding:clamp(14px,2vw,22px) clamp(14px,2.4vw,30px);font-size:clamp(.93rem,.88rem + .25vw,1.06rem);overflow-wrap:anywhere}
+.cmp th{font:560 clamp(1.15rem,1rem + .8vw,1.7rem)/1.1 var(--f-display);font-variation-settings:"SOFT" 100;letter-spacing:-.01em}
+.cmp .old{background:var(--table);color:var(--ink-2)}
+.cmp .new{background:var(--forest);color:var(--on-forest)}
+.cmp tbody tr + tr td{border-top:1px solid var(--line)}
+.cmp tbody tr + tr td.new{border-top-color:rgba(255,255,255,.14)}
+.cmp .k{display:block;font:700 .7rem/1 var(--f-text);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px;opacity:.8}
+.cmp td.old{text-decoration:none}
+.weeks{display:flex;gap:4px;margin-top:12px}
+.weeks i{flex:1;height:20px;border-radius:3px;min-width:0}
+.old .weeks i{border:1.5px dashed var(--line)}
+.new .weeks i{background:rgba(255,255,255,.14)}
+.new .weeks i.on{background:var(--wood)}
+.divider{position:absolute;top:0;bottom:0;left:var(--split);width:44px;margin-left:-22px;cursor:ew-resize;display:grid;place-items:center;touch-action:none;z-index:2}
+.divider::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:3px;margin-left:-1.5px;background:var(--ground)}
+.grip{position:relative;width:40px;height:40px;border-radius:50%;background:var(--ground);box-shadow:0 6px 16px -6px var(--shadow),0 0 0 1px var(--line);display:grid;place-items:center;color:var(--ink)}
+.grip svg{width:20px;height:20px}
+.divider:focus-visible{outline:none}
+.divider:focus-visible .grip{outline:3px solid var(--forest);outline-offset:3px}
+.cmp-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px;margin-top:14px}
+
+/* Pricing */
+.price-ctrl{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 28px;margin-top:clamp(24px,3.5vw,40px)}
+.seg{display:inline-flex;padding:4px;border-radius:999px;background:var(--table);box-shadow:inset 0 0 0 1px var(--line)}
+.seg button{appearance:none;border:0;background:transparent;padding:10px 16px;border-radius:999px;font-weight:700;font-size:.92rem;color:var(--ink-2);cursor:pointer;min-height:42px}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:0 2px 8px -3px var(--shadow)}
+.field{display:grid;gap:6px}
+.field label,.flabel{font-size:.86rem;font-weight:700;color:var(--ink-2)}
+@media (max-width:479px){.price-ctrl .field{width:100%}.seg{display:flex;width:100%}.seg button{flex:1;padding:10px 8px;font-size:.86rem}.money input{width:100%}}
+.money{display:flex;align-items:center;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r-ui);padding-left:12px;min-height:46px}
+.money:focus-within{border-color:var(--forest)}
+.money span{color:var(--ink-3);font-weight:700}
+.money input{border:0;background:transparent;font:700 1.05rem/1 var(--f-text);font-variant-numeric:tabular-nums;padding:10px 12px 10px 6px;width:150px;color:var(--ink)}
+.money input:focus{outline:none}
+.plans{display:grid;gap:16px;margin-top:24px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:720px){.plans{grid-template-columns:repeat(2,minmax(0,1fr))}.plain{grid-column:1 / -1}}
+@media (min-width:1080px){.plans{grid-template-columns:repeat(3,minmax(0,1fr))}.plain{grid-column:auto}}
+.plan{position:relative;display:flex;flex-direction:column;gap:16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);padding:clamp(22px,2.6vw,30px);box-shadow:0 30px 50px -40px var(--shadow);transform-style:preserve-3d}
+.plan.featured{box-shadow:inset 0 0 0 2px var(--forest),0 30px 50px -36px var(--shadow)}
+.plan-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.plan .tagline{color:var(--ink-2);font-size:.97rem}
+.badge{font:700 .7rem/1 var(--f-text);letter-spacing:.1em;text-transform:uppercase;color:var(--forest);background:var(--forest-tint);padding:6px 9px;border-radius:4px}
+.pflip{display:grid;perspective:900px}
+.pflip-in{display:grid;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.34,1.3,.5,1);transition-delay:calc(var(--d,0) * 90ms)}
+.dollars .pflip-in{transform:rotateX(180deg)}
+.pface{grid-area:1 / 1;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:var(--table);border-radius:12px;padding:16px 18px;display:grid;gap:4px;align-content:center;min-height:118px}
+.pface.back{transform:rotateX(180deg);background:var(--forest-tint)}
+.amt{font:500 clamp(2.4rem,2rem + 1.6vw,3.3rem)/1 var(--f-display);font-variation-settings:"SOFT" 100;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.pface.back .amt{color:var(--forest)}
+.amt-sub{font-size:.9rem;color:var(--ink-2)}
+.plan ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.plan li{display:flex;gap:10px;font-size:.97rem}
+.plan li svg{flex:none;width:18px;height:18px;margin-top:3px;color:var(--forest)}
+.plan .btn{margin-top:auto}
+.plain{background:var(--table);border:1.5px dashed var(--line);box-shadow:none}
+.plain ol{margin:0;padding:0;list-style:none;display:grid;gap:12px;counter-reset:pw}
+.plain ol li{counter-increment:pw;display:grid;grid-template-columns:28px 1fr;gap:8px;font-size:.98rem;color:var(--ink-2)}
+.plain ol li::before{content:counter(pw);font:600 1.05rem/1.4 var(--f-display);color:var(--forest)}
+
+/* FAQ */
+.faq-grid{display:grid;gap:clamp(24px,4vw,64px)}
+@media (min-width:900px){.faq-grid{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);align-items:start}}
+.acc{border-top:1px solid var(--line)}
+.acc-item{border-bottom:1px solid var(--line)}
+.acc h3{font-size:inherit;font-family:inherit;line-height:inherit;letter-spacing:0}
+.acc-btn{appearance:none;width:100%;border:0;background:none;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 0;text-align:left;cursor:pointer;font:560 clamp(1.18rem,1.05rem + .6vw,1.5rem)/1.2 var(--f-display);font-variation-settings:"SOFT" 100;color:var(--ink)}
+.pm{flex:none;position:relative;width:32px;height:32px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line);transition:background .3s,box-shadow .3s}
+.pm::before,.pm::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:2px;margin:-1px 0 0 -6px;background:var(--ink);border-radius:2px;transition:transform .4s cubic-bezier(.3,1.4,.5,1),background .3s}
+.pm::after{transform:rotate(90deg)}
+.acc-item.open .pm{background:var(--forest);box-shadow:none}
+.acc-item.open .pm::before,.acc-item.open .pm::after{background:var(--on-forest)}
+.acc-item.open .pm::after{transform:rotate(0deg)}
+.acc-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s cubic-bezier(.2,.8,.2,1)}
+.acc-panel > div{overflow:hidden;visibility:hidden;transition:visibility 0s .5s}
+.acc-item.open .acc-panel{grid-template-rows:1fr}
+.acc-item.open .acc-panel > div{visibility:visible;transition-delay:0s}
+.acc-panel p{padding:0 48px 24px 0;color:var(--ink-2);max-width:62ch}
+
+/* Final */
+.final{padding-block:clamp(48px,6vw,96px) clamp(60px,8vw,120px)}
+.final-grid{display:grid;gap:clamp(24px,4vw,56px);align-items:center}
+.final-copy{display:grid;gap:18px;min-width:0}
+.final h2{font-size:clamp(2.3rem,1.3rem + 3.4vw,4.6rem)}
+.stage-final{height:clamp(300px,62vh,640px)}
+@media (min-width:900px){.final-grid{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}}
+@media (max-width:899px){.stage-final{height:clamp(260px,80vw,440px)}}
+@media (max-height:500px){.stage-final{height:300px}}
+
+/* Footer */
+.foot{border-top:1px solid var(--line);padding-block:40px calc(40px + env(safe-area-inset-bottom,0px))}
+.foot-in{display:grid;gap:22px}
+@media (min-width:900px){.foot-in{grid-template-columns:1fr 1.3fr;align-items:start}}
+.foot p,.foot li{font-size:.9rem;color:var(--ink-2)}
+.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.credit{grid-column:1 / -1;padding-top:18px;border-top:1px solid var(--line);color:var(--ink-3)!important}
+
+/* Bottom CTA bar (phones) */
+.ctabar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--nav-bg);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.ctabar .btn{width:100%}
+.show-bar .ctabar{transform:none}
+@media (max-width:719px) and (min-height:501px){.ctabar{display:block}.foot{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}}
+
+/* Valuation sheet */
+.sheet{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.sheet-back{position:absolute;inset:0;background:var(--scrim);opacity:0;transition:opacity .35s}
+.sheet-panel{position:relative;width:100%;max-width:560px;max-height:92svh;overflow-y:auto;overscroll-behavior:contain;background:var(--ground);border-radius:22px 22px 0 0;padding:28px clamp(18px,4vw,34px) calc(26px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .5s cubic-bezier(.2,.9,.25,1);box-shadow:0 -20px 60px -30px var(--shadow)}
+.sheet.open .sheet-back{opacity:1}
+.sheet.open .sheet-panel{transform:none}
+@media (min-width:720px) and (min-height:560px){.sheet{align-items:center}.sheet-panel{border-radius:22px;transform:translateY(40px) scale(.97);opacity:0;transition:transform .5s cubic-bezier(.2,.9,.25,1),opacity .3s}.sheet.open .sheet-panel{opacity:1}}
+.sheet-x{position:absolute;top:14px;right:14px;appearance:none;border:0;width:40px;height:40px;border-radius:50%;background:var(--table);display:grid;place-items:center;cursor:pointer}
+.sheet-x svg{width:18px;height:18px}
+.sheet h2{font-size:clamp(1.8rem,1.4rem + 1.4vw,2.4rem);padding-right:44px}
+.sheet .intro{color:var(--ink-2);margin:10px 0 20px}
+.form{display:grid;gap:14px}
+.form .row{display:grid;gap:14px}
+@media (min-width:520px){.form .row{grid-template-columns:1fr 1fr}}
+.form input,.form select{width:100%;min-height:48px;border-radius:var(--r-ui);border:1.5px solid var(--line);background:var(--paper);padding:10px 12px;font:400 1rem/1.3 var(--f-text);color:var(--ink)}
+.form input:focus,.form select:focus{outline:none;border-color:var(--forest);box-shadow:0 0 0 3px var(--forest-tint)}
+.form [aria-invalid="true"]{border-color:#A3402E}
+.err{color:#A3402E;font-size:.9rem;font-weight:700;min-height:1.2em}
+.done{display:grid;gap:14px;padding-top:6px}
+.done h3{font-size:1.6rem}
+
+/* Reduced motion */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  .bflip{transform:none!important}
+  .face.back{transform:none;opacity:0;visibility:hidden}
+  .bcard.flipped .face.front{visibility:hidden}
+  .bcard.flipped .face.back{opacity:1;visibility:visible}
+  .pflip-in{transform:none!important}
+  .pface.back{transform:none;visibility:hidden}
+  .dollars .pface.front{visibility:hidden}
+  .dollars .pface.back{visibility:visible}
+}
+#gl{position:fixed;left:0;top:0;width:100vw;height:100vh;height:100lvh;z-index:30;pointer-events:none;display:block}
+</style>
+<script>
+(function(){var d=document.documentElement,rm=matchMedia('(prefers-reduced-motion: reduce)').matches,h=matchMedia('(min-width: 900px) and (min-height: 560px)').matches;d.classList.add('js',rm?'mode-stack':(h?'mode-h':'mode-swipe'));})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-drag" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M3 12h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-flip" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mark" viewBox="0 0 32 32"><path d="M4 14.5L16 4l12 10.5V28H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M16 24V12.5M12 16.5l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="fb-house" viewBox="0 0 400 300">
+      <ellipse cx="200" cy="246" rx="176" ry="34" fill="#2E3B35" opacity=".12"/>
+      <path d="M28 196 L196 266 L372 190 L206 128 Z" fill="#C9A27A"/>
+      <path d="M28 196 L196 266 L196 276 L28 206 Z" fill="#B48C64"/>
+      <path d="M196 266 L372 190 L372 200 L196 276 Z" fill="#A27C56"/>
+      <path d="M104 186 L104 128 L218 172 L218 232 Z" fill="#F2EFE9"/>
+      <path d="M218 172 L302 140 L302 196 L218 232 Z" fill="#E4DFD6"/>
+      <path d="M302 140 L302 196 L302 140 L262 104 Z" fill="#E4DFD6"/>
+      <path d="M218 172 L262 104 L302 140 Z" fill="#DCD6CB"/>
+      <path d="M92 132 L150 66 L268 108 L224 178 Z" fill="#ECE7DE"/>
+      <path d="M224 178 L268 108 L310 144 Z" fill="#D9D2C6"/>
+      <path d="M140 196 L140 166 L160 174 L160 204 Z" fill="#2E5E4E"/>
+      <path d="M116 168 L116 150 L132 156 L132 174 Z M176 190 L176 172 L196 179 L196 198 Z" fill="#F4C98E"/>
+      <path d="M240 176 L240 160 L258 153 L258 170 Z M272 164 L272 148 L288 142 L288 158 Z" fill="#F4C98E"/>
+      <path d="M318 214 L318 158" stroke="#E9E4DB" stroke-width="5" stroke-linecap="round"/>
+      <path d="M318 160 L290 172" stroke="#E9E4DB" stroke-width="4" stroke-linecap="round"/>
+      <path d="M284 178 L312 168 L312 190 L284 200 Z" fill="#2E5E4E"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top" aria-label="Northpoint Homes, back to top"><svg aria-hidden="true"><use href="#i-mark"/></svg><span>Northpoint <i>Homes</i></span></a>
+    <nav aria-label="Sections">
+      <ul class="nav-links">
+        <li><a href="#how" data-nav="how">How it works</a></li>
+        <li><a href="#why" data-nav="benefits">Why us</a></li>
+        <li><a href="#results" data-nav="proof">Results</a></li>
+        <li><a href="#pricing" data-nav="pricing">Pricing</a></li>
+        <li><a href="#faq" data-nav="faq">FAQ</a></li>
+      </ul>
+    </nav>
+    <button class="btn btn-primary btn-sm" type="button" data-open-form>Get my home's value</button>
+  </div>
+</header>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<main id="main">
+
+<!-- HERO -->
+<section class="hero" id="top" data-sec="hero" aria-labelledby="hero-title">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Listing team for Austin, Texas homeowners</p>
+      <h1 id="hero-title">Sell your home <em>for more</em>, with less stress.</h1>
+      <p class="lede">A clear plan, pro marketing and a team that answers.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" type="button" data-open-form id="hero-cta">Get my home's value <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        <a class="link" href="#how">See the 5-step plan</a>
+      </div>
+      <p class="fine">Free, no obligation. You get a price range, a prep list and a target list date.</p>
+    </div>
+    <div class="stage stage-hero" data-slot="hero" data-pad="34 10 52 10" tabindex="0" role="button" aria-pressed="false" aria-label="Clay model of your home. Press to open the roof and look inside. Left and right arrow keys turn it." aria-describedby="hero-stage-state">
+      <span class="stage-tag" aria-hidden="true">Working model · 1:100</span>
+      <svg class="fallback" aria-hidden="true"><use href="#fb-house"/></svg>
+      <span class="stage-hint" aria-hidden="true"><svg width="16" height="16"><use href="#i-drag"/></svg><span class="when-gl" id="hero-hint">Drag to turn · Tap to open</span></span>
+      <span class="sr" id="hero-stage-state" aria-live="polite">The roof is lifted a little and the rooms are lit.</span>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="sec problem" id="problem" data-sec="problem" aria-labelledby="problem-title">
+  <div class="wrap problem-grid">
+    <div class="problem-main">
+      <header class="sec-head">
+        <p class="eyebrow">The problem</p>
+        <h2 id="problem-title">What makes selling a home so stressful?</h2>
+        <p class="sec-sub">Most of the stress comes from three gaps. A plan closes each one.</p>
+      </header>
+      <ol class="stack">
+        <li class="pcard" style="--i:0">
+          <div class="pcard-in">
+            <span class="pcard-n">Gap 1 of 3</span>
+            <h3>Not sure what it's worth</h3>
+            <p>One agent says one number, a website says another. Price it too high and the home sits. Too low and you give money away.</p>
+            <svg class="ill" viewBox="0 0 132 84" aria-hidden="true"><path d="M16 70a50 50 0 0 1 100 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7"/><path d="M66 70L44 34" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="66" cy="70" r="5" fill="currentColor"/><text x="92" y="44" font-family="Fraunces,Georgia,serif" font-size="26" fill="currentColor">?</text></svg>
+          </div>
+          <div class="pcard-shade" aria-hidden="true"></div>
+        </li>
+        <li class="pcard" style="--i:1">
+          <div class="pcard-in">
+            <span class="pcard-n">Gap 2 of 3</span>
+            <h3>Months on the market</h3>
+            <p>Every extra month means another mortgage payment, more taxes and insurance, and buyers who start to wonder what's wrong with it.</p>
+            <svg class="ill" viewBox="0 0 132 84" aria-hidden="true"><rect x="6" y="8" width="120" height="70" rx="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 24h120" stroke="currentColor" stroke-width="2"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M18 34l8 8M26 34l-8 8M38 34l8 8M46 34l-8 8M58 34l8 8M66 34l-8 8M78 34l8 8M86 34l-8 8M98 34l8 8M106 34l-8 8M18 54l8 8M26 54l-8 8M38 54l8 8M46 54l-8 8M58 54l8 8M66 54l-8 8"/></g><circle cx="82" cy="58" r="4" fill="currentColor"/></svg>
+          </div>
+          <div class="pcard-shade" aria-hidden="true"></div>
+        </li>
+        <li class="pcard" style="--i:2">
+          <div class="pcard-in">
+            <span class="pcard-n">Gap 3 of 3</span>
+            <h3>Agents who go quiet</h3>
+            <p>The sign goes up, then the updates stop. You hear about showings from the lockbox app, and feedback never arrives.</p>
+            <svg class="ill" viewBox="0 0 132 84" aria-hidden="true"><rect x="44" y="4" width="44" height="76" rx="8" fill="none" stroke="currentColor" stroke-width="2"/><rect x="52" y="18" width="26" height="10" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="56" y="34" width="24" height="10" rx="5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 3"/><circle cx="60" cy="60" r="2" fill="currentColor"/><circle cx="66" cy="60" r="2" fill="currentColor"/><circle cx="72" cy="60" r="2" fill="currentColor"/></svg>
+          </div>
+          <div class="pcard-shade" aria-hidden="true"></div>
+        </li>
+      </ol>
+    </div>
+    <div class="problem-side">
+      <div class="stage stage-problem" data-slot="problem" data-pad="40 12 30 12" role="img" aria-label="Clay model of a house with a crooked for-sale sign and a price tag that reads a question mark.">
+        <span class="stage-tag" aria-hidden="true">Before a plan</span>
+        <svg class="fallback" aria-hidden="true"><use href="#fb-house"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS (horizontal 1) -->
+<section class="how" id="how" data-sec="how" aria-labelledby="how-title">
+  <div class="how-pin">
+    <div class="wrap how-head">
+      <header class="sec-head">
+        <p class="eyebrow">How it works · 5 steps</p>
+        <h2 id="how-title">How does selling with Northpoint work?</h2>
+      </header>
+      <div class="hprog" data-prog="how">
+        <span>Step <b data-prog-n>1</b> of 5</span>
+        <span class="bar" aria-hidden="true"><i data-prog-bar></i></span>
+        <span class="hint how-hint-h"><svg width="16" height="16" aria-hidden="true"><use href="#i-drag"/></svg>Scroll sideways</span>
+      </div>
+    </div>
+    <div class="how-body">
+      <div class="stage how-stage" data-slot="how" data-pad="24 8 24 8" role="img" aria-label="Clay model of the house. It changes with each step of the sale." id="how-stage">
+        <svg class="fallback" aria-hidden="true"><use href="#fb-house"/></svg>
+      </div>
+      <div class="how-viewport" tabindex="-1">
+        <ol class="how-track">
+          <li class="step" data-step="0" aria-label="Step 1 of 5: Valuation">
+            <div class="step-in">
+              <span class="step-num" aria-hidden="true">01</span>
+              <p class="step-when">Days 1 to 3</p>
+              <h3>Valuation</h3>
+              <p>We walk through the home, pull recent sales nearby and send you a price range with the reasoning written down.</p>
+              <ul class="ticks"><li>Walk-through at your home</li><li>Recent nearby sales, adjusted for your home</li><li>A price range you can check</li></ul>
+            </div>
+          </li>
+          <li class="step" data-step="1" aria-label="Step 2 of 5: Prep and staging">
+            <div class="step-in">
+              <span class="step-num" aria-hidden="true">02</span>
+              <p class="step-when">Days 4 to 14</p>
+              <h3>Prep and staging</h3>
+              <p>You get a room-by-room prep list, ordered by what buyers notice first. Our stager sets up the rooms that matter most.</p>
+              <ul class="ticks"><li>Prep list with rough costs</li><li>Contractors we trust, if you need them</li><li>Staging for the key rooms</li></ul>
+            </div>
+          </li>
+          <li class="step" data-step="2" aria-label="Step 3 of 5: Marketing">
+            <div class="step-in">
+              <span class="step-num" aria-hidden="true">03</span>
+              <p class="step-when">Launch day</p>
+              <h3>Marketing</h3>
+              <p>Photos, video and a floor plan go live on the MLS, the major home sites and our buyer list on the same day.</p>
+              <ul class="ticks"><li>Pro photos and a walkthrough video</li><li>Floor plan and feature sheet</li><li>Open house plan for the first weekend</li></ul>
+            </div>
+          </li>
+          <li class="step" data-step="3" aria-label="Step 4 of 5: Offers">
+            <div class="step-in">
+              <span class="step-num" aria-hidden="true">04</span>
+              <p class="step-when">First 1 to 3 weeks</p>
+              <h3>Offers</h3>
+              <p>We set an offer deadline, put every offer side by side and negotiate in writing. You choose.</p>
+              <ul class="ticks"><li>Offer deadline set before launch</li><li>Side-by-side offer summary</li><li>Counteroffers handled in writing</li></ul>
+            </div>
+          </li>
+          <li class="step" data-step="4" aria-label="Step 5 of 5: Closing">
+            <div class="step-in">
+              <span class="step-num" aria-hidden="true">05</span>
+              <p class="step-when">About 30 to 45 days</p>
+              <h3>Closing</h3>
+              <p>We track inspection, appraisal, title and lender deadlines until the keys change hands.</p>
+              <ul class="ticks"><li>Shared deadline calendar</li><li>Repair negotiation</li><li>Final walkthrough with you</li></ul>
+              <div class="step-cta"><button class="btn btn-primary" type="button" data-open-form>Start with step 1 <svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+            </div>
+          </li>
+        </ol>
+      </div>
+      <div class="how-foot">
+        <div class="dots" data-dots="how" role="group" aria-label="Go to step"></div>
+        <span class="hint swipe-hint"><svg width="16" height="16" aria-hidden="true"><use href="#i-drag"/></svg>Swipe for the next step</span>
+        <p class="note">Timelines are a sample plan and change with each home. <span class="mark">VERIFY</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS (deck deal) -->
+<section class="sec benefits" id="why" data-sec="benefits" aria-labelledby="why-title">
+  <div class="wrap">
+    <div class="ben-head">
+      <header class="sec-head">
+        <p class="eyebrow">Why Northpoint</p>
+        <h2 id="why-title">Why sell with Northpoint?</h2>
+        <p class="sec-sub">Six things you get on every listing, written into your plan before the sign goes up.</p>
+      </header>
+      <div class="stage stage-ben" data-slot="benefits" data-pad="30 10 16 10" role="img" aria-label="Clay model of the house with its front door open, sending listing cards out.">
+        <span class="stage-tag" aria-hidden="true">Your listing</span>
+        <svg class="fallback" aria-hidden="true"><use href="#fb-house"/></svg>
+      </div>
+    </div>
+    <div class="deck-bar">
+      <span class="hint"><svg width="16" height="16" aria-hidden="true"><use href="#i-flip"/></svg>Tap a card to flip it for details</span>
+    </div>
+    <ul class="deck">
+      <li class="deal"><article class="bcard" aria-labelledby="b1"><div class="bflip">
+        <div class="face front"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.6"/></svg></span><h3 id="b1">Pricing strategy</h3><p>A price range from recent nearby sales, with the reasoning on one page.</p></div>
+        <div class="face back"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.6"/></svg></span><h3>How we price</h3><p>We adjust each nearby sale for size, condition, lot and updates, then pick a list price that sits inside the price bands buyers search.</p></div>
+      </div><span class="glare" aria-hidden="true"></span><button class="flip-btn" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-flip"/></svg><span>Details</span></button></article></li>
+
+      <li class="deal"><article class="bcard" aria-labelledby="b2"><div class="bflip">
+        <div class="face front"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13.5" r="3.4"/><path d="M8 7l1.6-3h4.8L16 7"/></svg></span><h3 id="b2">Pro photos and video</h3><p>Daylight photos, a walkthrough video and a floor plan, ready before launch day.</p></div>
+        <div class="face back"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13.5" r="3.4"/><path d="M8 7l1.6-3h4.8L16 7"/></svg></span><h3>What you get</h3><p>Shot by a real estate photographer, edited the same week and checked by you before anything goes live.</p></div>
+      </div><span class="glare" aria-hidden="true"></span><button class="flip-btn" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-flip"/></svg><span>Details</span></button></article></li>
+
+      <li class="deal"><article class="bcard" aria-labelledby="b3"><div class="bflip">
+        <div class="face front"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M5 11V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"/><rect x="2.5" y="11" width="19" height="6" rx="2"/><path d="M5 17v2.5M19 17v2.5"/></svg></span><h3 id="b3">Staging help</h3><p>A stager walks the home with you and sets up the rooms buyers look at first.</p></div>
+        <div class="face back"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M5 11V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"/><rect x="2.5" y="11" width="19" height="6" rx="2"/><path d="M5 17v2.5M19 17v2.5"/></svg></span><h3>Which rooms</h3><p>Usually the living room, kitchen and main bedroom. You see the cost before you agree to anything. <span class="mark">VERIFY</span></p></div>
+      </div><span class="glare" aria-hidden="true"></span><button class="flip-btn" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-flip"/></svg><span>Details</span></button></article></li>
+
+      <li class="deal"><article class="bcard" aria-labelledby="b4"><div class="bflip">
+        <div class="face front"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg></span><h3 id="b4">Weekly updates</h3><p>Every Monday: showings, buyer feedback, online views and the next step.</p></div>
+        <div class="face back"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg></span><h3>In writing</h3><p>One written update in your inbox every week until closing. If the plan needs to change, we tell you why.</p></div>
+      </div><span class="glare" aria-hidden="true"></span><button class="flip-btn" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-flip"/></svg><span>Details</span></button></article></li>
+
+      <li class="deal"><article class="bcard" aria-labelledby="b5"><div class="bflip">
+        <div class="face front"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4v16M7 20h10M5 7h14M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/></svg></span><h3 id="b5">Negotiation</h3><p>We compare offers on price, terms and risk, then negotiate in writing.</p></div>
+        <div class="face back"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 4v16M7 20h10M5 7h14M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/></svg></span><h3>Side by side</h3><p>Financing, appraisal gaps, contingencies and closing dates go into one summary, so you can decide quickly.</p></div>
+      </div><span class="glare" aria-hidden="true"></span><button class="flip-btn" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-flip"/></svg><span>Details</span></button></article></li>
+
+      <li class="deal"><article class="bcard" aria-labelledby="b6"><div class="bflip">
+        <div class="face front"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="15" r="4.2"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg></span><h3 id="b6">Closing support</h3><p>We track inspection, appraisal and title dates so nothing slips.</p></div>
+        <div class="face back"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="15" r="4.2"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg></span><h3>One contact</h3><p>A shared calendar of every deadline, with reminders, and one person you can call about any of it.</p></div>
+      </div><span class="glare" aria-hidden="true"></span><button class="flip-btn" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-flip"/></svg><span>Details</span></button></article></li>
+    </ul>
+  </div>
+</section>
+
+<!-- PROOF (horizontal 2) -->
+<section class="sec proof" id="results" data-sec="proof" aria-labelledby="proof-title">
+  <div class="proof-pin">
+    <div class="wrap proof-head">
+      <header class="sec-head">
+        <p class="eyebrow">Results</p>
+        <h2 id="proof-title">Does it work?</h2>
+        <p class="sec-sub">Closed Northpoint sales, one card each. These are templates until they're filled from MLS records. <span class="mark">ADD real sales</span></p>
+      </header>
+      <div class="hprog" data-prog="proof"><span>Result <b data-prog-n>1</b> of 5</span><span class="bar" aria-hidden="true"><i data-prog-bar></i></span></div>
+    </div>
+    <div class="cyl-view" id="cyl-view">
+      <ul class="cyl" id="cyl" aria-label="Closed sales">
+        <li class="rcard" data-i="0"><div class="rc-top"><span class="rc-k">Sale 1 of 5</span><span class="rc-badge">Sold</span></div><h3><span class="mark">ADD</span> neighborhood, Austin</h3><dl><div><dt>List price</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Sale price</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Days to contract</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Plan dates met</dt><dd><span class="mark">ADD</span> of 5</dd></div></dl><p class="rc-quote">Seller quote, used with written permission. <span class="mark">ADD</span></p><svg class="rc-sketch" viewBox="0 0 300 46" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><path d="M2 44h296M20 44V22l22-16 22 16v22M34 44V32h16v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></li>
+        <li class="rcard" data-i="1"><div class="rc-top"><span class="rc-k">Sale 2 of 5</span><span class="rc-badge">Sold</span></div><h3><span class="mark">ADD</span> neighborhood, Austin</h3><dl><div><dt>List price</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Sale price</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Days to contract</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Plan dates met</dt><dd><span class="mark">ADD</span> of 5</dd></div></dl><p class="rc-quote">Seller quote, used with written permission. <span class="mark">ADD</span></p><svg class="rc-sketch" viewBox="0 0 300 46" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><path d="M2 44h296M20 44V18h44v26M14 20l28-16 28 16M30 44V30h12v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></li>
+        <li class="rcard" data-i="2"><div class="rc-top"><span class="rc-k">Sale 3 of 5</span><span class="rc-badge">Sold</span></div><h3><span class="mark">ADD</span> neighborhood, Austin</h3><dl><div><dt>List price</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Sale price</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Days to contract</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Plan dates met</dt><dd><span class="mark">ADD</span> of 5</dd></div></dl><p class="rc-quote">Seller quote, used with written permission. <span class="mark">ADD</span></p><svg class="rc-sketch" viewBox="0 0 300 46" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><path d="M2 44h296M20 44V24l16-12 16 12v20M52 44V28h30v16M40 44V34h8v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></li>
+        <li class="rcard" data-i="3"><div class="rc-top"><span class="rc-k">Sale 4 of 5</span><span class="rc-badge">Sold</span></div><h3><span class="mark">ADD</span> neighborhood, Austin</h3><dl><div><dt>List price</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Sale price</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Days to contract</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Plan dates met</dt><dd><span class="mark">ADD</span> of 5</dd></div></dl><p class="rc-quote">Seller quote, used with written permission. <span class="mark">ADD</span></p><svg class="rc-sketch" viewBox="0 0 300 46" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><path d="M2 44h296M20 44V16l20-12 20 12v28M28 44V32h10v12M44 26h8v8h-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></li>
+        <li class="rcard" data-i="4"><div class="rc-top"><span class="rc-k">Sale 5 of 5</span><span class="rc-badge">Sold</span></div><h3><span class="mark">ADD</span> neighborhood, Austin</h3><dl><div><dt>List price</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Sale price</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Days to contract</dt><dd><span class="mark">ADD</span></dd></div><div><dt>Plan dates met</dt><dd><span class="mark">ADD</span> of 5</dd></div></dl><p class="rc-quote">Seller quote, used with written permission. <span class="mark">ADD</span></p><svg class="rc-sketch" viewBox="0 0 300 46" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><path d="M2 44h296M20 44V22l24-18 24 18v22M36 44V30h16v14M80 44V30l10-8 10 8v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></li>
+      </ul>
+    </div>
+    <div class="wrap cyl-ctrl">
+      <div class="dots" data-dots="proof" role="group" aria-label="Go to result"></div>
+      <span class="hint"><svg width="16" height="16" aria-hidden="true"><use href="#i-drag"/></svg><span data-proof-hint>Drag or scroll to turn the carousel</span></span>
+      <div class="arrows"><button class="icon-btn" type="button" data-cyl="-1" aria-label="Previous result"><svg style="transform:scaleX(-1)" aria-hidden="true"><use href="#i-arrow"/></svg></button><button class="icon-btn" type="button" data-cyl="1" aria-label="Next result"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="sec compare" id="compare" data-sec="compare" aria-labelledby="cmp-title">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow">Compare</p>
+      <h2 id="cmp-title">What changes when the sale has a plan?</h2>
+      <p class="sec-sub">The same home, sold two ways. Listing and hoping, or a plan with dates.</p>
+    </header>
+    <div class="cmp-wrap" id="cmp">
+      <table class="cmp">
+        <caption class="sr">Listing and hoping compared with a plan with dates</caption>
+        <colgroup><col class="c-old"><col class="c-new"></colgroup>
+        <thead><tr>
+          <th scope="col" class="old">Listing and hoping<div class="weeks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></th>
+          <th scope="col" class="new">A plan with dates<div class="weeks" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i class="on"></i></div></th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="old"><span class="k">Price</span>A guess, or the highest number an agent quoted</td><td class="new"><span class="k">Price</span>A written range from recent nearby sales</td></tr>
+          <tr><td class="old"><span class="k">Prep</span>Whatever gets done before photos</td><td class="new"><span class="k">Prep</span>A ranked prep list and a staging walk-through</td></tr>
+          <tr><td class="old"><span class="k">Launch</span>Photos whenever the photographer is free</td><td class="new"><span class="k">Launch</span>A launch date on the calendar, with photos, video and floor plan ready</td></tr>
+          <tr><td class="old"><span class="k">Updates</span>You chase your agent for news</td><td class="new"><span class="k">Updates</span>A written update every Monday</td></tr>
+          <tr><td class="old"><span class="k">Offers</span>Take the first offer, or wait and wonder</td><td class="new"><span class="k">Offers</span>An offer deadline and a side-by-side summary</td></tr>
+          <tr><td class="old"><span class="k">Closing</span>Surprises in the last week</td><td class="new"><span class="k">Closing</span>Every deadline tracked to closing day</td></tr>
+        </tbody>
+      </table>
+      <div class="divider" id="cmp-divider" role="separator" tabindex="0" aria-orientation="vertical" aria-label="Resize the comparison" aria-controls="cmp" aria-valuemin="30" aria-valuemax="70" aria-valuenow="50"><span class="grip"><svg aria-hidden="true"><use href="#i-drag"/></svg></span></div>
+    </div>
+    <div class="cmp-foot">
+      <span class="hint"><svg width="16" height="16" aria-hidden="true"><use href="#i-drag"/></svg>Drag the divider to give either side more room</span>
+      <p class="note">Week strip shows a sample plan: valuation, prep, launch and offers in the first four weeks, closing around week eight. <span class="mark">VERIFY</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="sec pricing" id="pricing" data-sec="pricing" aria-labelledby="price-title">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow">Pricing</p>
+      <h2 id="price-title">What does it cost?</h2>
+      <p class="sec-sub">One listing commission, paid at closing out of the sale. Nothing up front. <span class="mark">VERIFY</span></p>
+    </header>
+    <div class="price-ctrl">
+      <div class="field">
+        <span class="flabel" id="seg-label">Show the commission as</span>
+        <div class="seg" role="group" aria-labelledby="seg-label">
+          <button type="button" aria-pressed="true" data-show="pct">% of sale price</button>
+          <button type="button" aria-pressed="false" data-show="usd">Dollars at my price</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="sale-price">Your estimated sale price (example)</label>
+        <div class="money"><span aria-hidden="true">$</span><input id="sale-price" name="sale-price" inputmode="numeric" autocomplete="off" value="500,000" aria-describedby="price-live"></div>
+      </div>
+    </div>
+    <p class="sr" id="price-live" aria-live="polite"></p>
+    <div class="plans" id="plans">
+      <article class="plan" style="--d:0" aria-labelledby="p1">
+        <div class="plan-top"><h3 id="p1">Essentials</h3></div>
+        <p class="tagline">The full five-step plan for a home that's ready to show.</p>
+        <div class="pflip"><div class="pflip-in">
+          <div class="pface front"><span class="amt">2.5%</span><span class="amt-sub">of the final sale price <span class="mark">VERIFY</span></span></div>
+          <div class="pface back"><span class="amt" data-rate="2.5">$12,500</span><span class="amt-sub" data-sub="2.5">2.5% of a $500,000 sale</span></div>
+        </div></div>
+        <ul>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Valuation and pricing strategy</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Pro photos and floor plan</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>MLS, major home sites and our buyer list</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Written update every Monday</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Offer review, negotiation and closing support</li>
+        </ul>
+        <button class="btn btn-line" type="button" data-open-form>Get my home's value</button>
+      </article>
+      <article class="plan featured" style="--d:1" aria-labelledby="p2">
+        <div class="plan-top"><h3 id="p2">Full plan</h3><span class="badge">Most hands-on</span></div>
+        <p class="tagline">Everything in Essentials, plus help getting the home ready.</p>
+        <div class="pflip"><div class="pflip-in">
+          <div class="pface front"><span class="amt">3%</span><span class="amt-sub">of the final sale price <span class="mark">VERIFY</span></span></div>
+          <div class="pface back"><span class="amt" data-rate="3">$15,000</span><span class="amt-sub" data-sub="3">3% of a $500,000 sale</span></div>
+        </div></div>
+        <ul>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Everything in Essentials</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Stager setup of the key rooms</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Walkthrough video</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Pre-listing inspection, coordinated</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Prep contractors scheduled for you</li>
+        </ul>
+        <button class="btn btn-primary" type="button" data-open-form>Get my home's value <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+      </article>
+      <aside class="plan plain" aria-labelledby="p3">
+        <h3 id="p3">Commission in plain words</h3>
+        <ol>
+          <li>You pay nothing up front.</li>
+          <li>The listing commission is a percentage of the final sale price. It comes out of the sale money at closing.</li>
+          <li>Pay for the buyer's agent is separate. You decide whether to offer it, and how much, before we list.</li>
+          <li>If the home doesn't sell, you owe no listing commission.</li>
+          <li>Commission is always negotiable.</li>
+        </ol>
+        <p><span class="mark">VERIFY: rates, terms and brokerage disclosures</span></p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec faq" id="faq" data-sec="faq" aria-labelledby="faq-title">
+  <div class="wrap faq-grid">
+    <header class="sec-head">
+      <p class="eyebrow">FAQ</p>
+      <h2 id="faq-title">What do sellers ask us first?</h2>
+      <p class="sec-sub">Straight answers to the five questions we hear most.</p>
+    </header>
+    <div class="acc" id="acc">
+      <div class="acc-item open"><h3><button class="acc-btn" type="button" aria-expanded="true" aria-controls="fa1" id="fq1">What's my home worth?<span class="pm" aria-hidden="true"></span></button></h3><div class="acc-panel" id="fa1" role="region" aria-labelledby="fq1"><div><p>It depends on recent sales near you, your home's size and condition, and what else is for sale in your price range right now. Ask for a valuation and we send a price range with the sales we used, usually within one business day. <span class="mark">VERIFY</span></p></div></div></div>
+      <div class="acc-item"><h3><button class="acc-btn" type="button" aria-expanded="false" aria-controls="fa2" id="fq2">When should I list?<span class="pm" aria-hidden="true"></span></button></h3><div class="acc-panel" id="fa2" role="region" aria-labelledby="fq2"><div><p>When your prep is done and your price range is moving. We look at how fast similar homes are going under contract and how many are competing, then suggest a list date that also fits your move.</p></div></div></div>
+      <div class="acc-item"><h3><button class="acc-btn" type="button" aria-expanded="false" aria-controls="fa3" id="fq3">Do I need to stage?<span class="pm" aria-hidden="true"></span></button></h3><div class="acc-panel" id="fa3" role="region" aria-labelledby="fq3"><div><p>Not always. Empty homes and rooms that feel crowded or dated tend to benefit most. We tell you which rooms matter and what it costs before you commit to anything.</p></div></div></div>
+      <div class="acc-item"><h3><button class="acc-btn" type="button" aria-expanded="false" aria-controls="fa4" id="fq4">How are offers handled?<span class="pm" aria-hidden="true"></span></button></h3><div class="acc-panel" id="fa4" role="region" aria-labelledby="fq4"><div><p>We set a clear offer deadline, put every offer in a side-by-side summary (price, financing, contingencies, closing date) and negotiate in writing. The decision is always yours.</p></div></div></div>
+      <div class="acc-item"><h3><button class="acc-btn" type="button" aria-expanded="false" aria-controls="fa5" id="fq5">What does it cost?<span class="pm" aria-hidden="true"></span></button></h3><div class="acc-panel" id="fa5" role="region" aria-labelledby="fq5"><div><p>A listing commission paid at closing out of the sale money, with nothing up front. Pay for the buyer's agent is separate and your decision. The pricing section above shows the rate in dollars at your price. <span class="mark">VERIFY</span></p></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final" id="value" data-sec="final" aria-labelledby="final-title">
+  <div class="wrap final-grid">
+    <div class="final-copy">
+      <p class="eyebrow">Free home valuation</p>
+      <h2 id="final-title">What's your home worth right now?</h2>
+      <p class="lede">Get a price range, a prep list and a target list date. Free, with no obligation to list.</p>
+      <div class="hero-actions"><button class="btn btn-primary" type="button" data-open-form>Get my home's value <svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+    </div>
+    <div class="stage stage-final" data-slot="final" data-pad="30 10 20 10" role="img" aria-label="Clay model of the house closing up, with a sold sign swinging in front.">
+      <span class="stage-tag" aria-hidden="true">Sold, on schedule</span>
+      <svg class="fallback" aria-hidden="true"><use href="#fb-house"/></svg>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div>
+      <a class="brand" href="#top"><svg aria-hidden="true"><use href="#i-mark"/></svg><span>Northpoint <i>Homes</i></span></a>
+      <p style="margin-top:12px">A listing team for homeowners in Austin, Texas. Phone and office address <span class="mark">ADD</span></p>
+    </div>
+    <ul>
+      <li><span class="mark">VERIFY: brokerage disclosures</span></li>
+      <li>Texas Real Estate Commission Information About Brokerage Services <span class="mark">VERIFY</span></li>
+      <li>Texas Real Estate Commission Consumer Protection Notice <span class="mark">VERIFY</span></li>
+      <li>Equal Housing Opportunity <span class="mark">VERIFY</span></li>
+    </ul>
+    <p class="credit">Concept site. Design and build by [YOUR STUDIO].</p>
+  </div>
+</footer>
+
+<div class="ctabar" id="ctabar"><button class="btn btn-primary" type="button" data-open-form>Get my home's value <svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-back" data-close></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title" data-lenis-prevent>
+    <button class="sheet-x" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <h2 id="sheet-title">Get my home's value</h2>
+    <p class="intro">Tell us where the home is. An agent reviews recent nearby sales and sends you a price range with the reasoning.</p>
+    <form class="form" id="val-form" novalidate>
+      <div class="field"><label for="f-addr">Home address</label><input id="f-addr" name="address" autocomplete="street-address" required placeholder="1204 Example St, Austin, TX"></div>
+      <div class="field"><label for="f-when">When might you sell?</label><select id="f-when" name="when"><option>In the next 3 months</option><option>In 3 to 6 months</option><option>In 6 to 12 months</option><option>Just curious for now</option></select></div>
+      <div class="row">
+        <div class="field"><label for="f-name">Your name</label><input id="f-name" name="name" autocomplete="name" required></div>
+        <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
+      </div>
+      <div class="field"><label for="f-phone">Phone (optional)</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
+      <p class="err" id="f-err" aria-live="assertive"></p>
+      <button class="btn btn-primary" type="submit">Request my valuation <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+      <p class="fine">Concept site: this form doesn't send anything. <span class="mark">VERIFY: privacy and consent text</span></p>
+    </form>
+    <div class="done" id="sheet-done" hidden>
+      <h3 id="done-title" tabindex="-1">Request ready</h3>
+      <p id="done-text"></p>
+      <p class="fine">This is a concept site, so nothing was sent. On the live site, an agent replies within one business day. <span class="mark">VERIFY</span></p>
+      <button class="btn btn-line" type="button" data-close>Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var root = document.documentElement;
+  var RMQ = matchMedia('(prefers-reduced-motion: reduce)');
+  var HQ = matchMedia('(min-width: 900px) and (min-height: 560px)');
+  var FINE = matchMedia('(hover: hover) and (pointer: fine)');
+  var hasGSAP = !!(window.gsap && window.ScrollTrigger);
+  var RM = RMQ.matches;
+  function getMode() { return (RM || !hasGSAP) ? 'stack' : (HQ.matches ? 'h' : 'swipe'); }
+  var mode = getMode();
+  function applyModeClass() { root.classList.remove('mode-h', 'mode-swipe', 'mode-stack'); root.classList.add('mode-' + mode); }
+  applyModeClass();
+
+  var clamp = function (v, a, b) { a = a === undefined ? 0 : a; b = b === undefined ? 1 : b; return Math.min(b, Math.max(a, v)); };
+  var lerp = function (a, b, t) { return a + (b - a) * t; };
+  var easeOut = function (t) { t = clamp(t); return 1 - Math.pow(1 - t, 3); };
+  var easeInOut = function (t) { t = clamp(t); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+  var backOut = function (t, s) { t = clamp(t); s = s || 1.7; var c = s + 1; return 1 + c * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2); };
+  var bounceOut = function (t) { t = clamp(t); var n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375; return n * (t -= 2.625 / d) * t + .984375; };
+  var smooth = function (t) { t = clamp(t); return t * t * (3 - 2 * t); };
+
+  /* ------------------------------------------------------------------ */
+  /* Shared state of the clay house. GSAP tweens these numbers.          */
+  /* ------------------------------------------------------------------ */
+  var S = { roof: .14, walls: 0, lights: 1, staging: 1, tag: 0, photos: 0, offers: 0, sold: 0, door: 0, sag: 0, yaw: 0, turn: 0, drop: 0, idle: 0 };
+  var YAW_FRONT = 0.62;
+  var T = {
+    hero: { roof: .14, walls: 0, lights: 1, staging: 1, tag: 0, photos: 0, offers: 0, sold: 0, door: 0, sag: 0, yaw: 0, turn: 0 },
+    open: { roof: 1, walls: .62, lights: 1, staging: 1, tag: 0, photos: 0, offers: 0, sold: 0, door: 0, sag: 0 },
+    problem0: { roof: 0, walls: 0, lights: .5, staging: 0, tag: 1, tagMode: '?', photos: 0, offers: 0, sold: 0, door: 0, sag: 0, yaw: 0, turn: 0 },
+    problem1: { roof: 0, walls: 0, lights: .35, staging: 0, tag: 1, tagMode: '?', photos: 0, offers: 0, sold: 0, door: 0, sag: .3, yaw: 0, turn: 0 },
+    problem2: { roof: 0, walls: 0, lights: 0, staging: 0, tag: 1, tagMode: '?', photos: 0, offers: 0, sold: 0, door: 0, sag: .3, yaw: 0, turn: 0 },
+    how0: { roof: 0, walls: 0, lights: .85, staging: 0, tag: 1, tagMode: '$', photos: 0, offers: 0, sold: 0, door: 0, sag: 0, yaw: 0 },
+    how1: { roof: 1, walls: 1, lights: 1, staging: 1, tag: 0, photos: 0, offers: 0, sold: 0, door: 0, sag: 0, yaw: 0 },
+    how2: { roof: 0, walls: 0, lights: 1, staging: 1, tag: 0, photos: 1, offers: 0, sold: 0, door: 0, sag: 0, yaw: 0 },
+    how3: { roof: 0, walls: 0, lights: 1, staging: 1, tag: 0, photos: 1, offers: 1, sold: 0, door: 0, sag: 0, yaw: 0 },
+    how4: { roof: 0, walls: 0, lights: 1, staging: 1, tag: 0, photos: 1, offers: 1, sold: 1, door: 0, sag: 0, yaw: 0 },
+    benefits: { roof: 0, walls: 0, lights: 1, staging: 1, tag: 0, photos: 0, offers: 0, sold: 0, sag: 0, yaw: YAW_FRONT, turn: 0 },
+    final: { walls: 0, lights: 1, staging: 1, tag: 0, photos: 0, offers: 0, door: 0, sag: 0, yaw: 0, turn: 0 }
+  };
+  var DUR = { roof: .9, walls: 1.05, lights: .7, staging: 1.2, tag: 1.25, photos: 1.7, offers: 1.4, sold: .9, door: .5, sag: 1.1, yaw: 1.1, turn: 1.1 };
+  var EASE = { roof: 'power3.inOut', walls: 'power2.inOut', lights: 'sine.inOut', staging: 'none', tag: 'none', photos: 'none', offers: 'none', sold: 'none', door: 'power2.inOut', sag: 'elastic.out(1,0.45)', yaw: 'power2.inOut', turn: 'power2.inOut' };
+  var tagMode = '?';
+  var tagTL = null;
+
+  function go(name) {
+    var t = T[name]; if (!t) return;
+    var keys = Object.keys(t);
+    if (t.tagMode && t.tagMode !== tagMode) {
+      if (tagTL) tagTL.kill();
+      if (hasGSAP && S.tag > .05 && !RM) {
+        tagTL = gsap.timeline().to(S, { tag: 0, duration: .45, ease: 'power1.in' }).call(function () { setTagMode(t.tagMode); }).to(S, { tag: 1, duration: 1.25, ease: 'none' });
+        keys = keys.filter(function (k) { return k !== 'tag'; });
+      } else setTagMode(t.tagMode);
+    }
+    keys.forEach(function (k) {
+      if (k === 'tagMode') return;
+      if (!hasGSAP) { S[k] = t[k]; return; }
+      if (k === 'tag' && tagTL && tagTL.isActive()) return;
+      gsap.to(S, { [k]: t[k], duration: RM ? Math.min(.4, DUR[k]) : DUR[k], ease: RM ? 'sine.inOut' : EASE[k], overwrite: 'auto' });
+    });
+  }
+  function setTagMode(m) { tagMode = m; if (GL) GL.setTag(m); }
+
+  /* ------------------------------------------------------------------ */
+  /* Spring helpers: lean toward cursor, drag with spring return, sign   */
+  /* ------------------------------------------------------------------ */
+  var lean = { y: 0, p: 0, ty: 0, tp: 0 };
+  var drag = { y: 0, v: 0, active: false };
+  var swing = { a: 0, v: 0 };
+  function stepSprings(dt) {
+    var moving = false;
+    var k = 1 - Math.exp(-dt * 5);
+    lean.y += (lean.ty - lean.y) * k; lean.p += (lean.tp - lean.p) * k;
+    if (Math.abs(lean.ty - lean.y) > 2e-4 || Math.abs(lean.tp - lean.p) > 2e-4) moving = true;
+    if (!drag.active) {
+      var f = -46 * drag.y - 10 * drag.v; drag.v += f * dt; drag.y += drag.v * dt;
+      if (Math.abs(drag.y) < 2e-4 && Math.abs(drag.v) < 2e-3) { drag.y = 0; drag.v = 0; } else moving = true;
+    } else moving = true;
+    var w = 5.4, z = .075, acc = -w * w * swing.a - 2 * z * w * swing.v;
+    swing.v += acc * dt; swing.a += swing.v * dt;
+    if (Math.abs(swing.a) < 2e-4 && Math.abs(swing.v) < 2e-3) { swing.a = 0; swing.v = 0; } else moving = true;
+    return moving;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* WebGL: one fixed canvas, the house rendered into the active slot    */
+  /* ------------------------------------------------------------------ */
+  var GL = null;
+  try { GL = initGL(); } catch (e) { console.warn('3D disabled:', e); GL = null; }
+  if (!GL) root.classList.add('no-gl');
+
+  function initGL() {
+    if (!window.THREE) return null;
+    var THREE = window.THREE;
+    var canvas = document.getElementById('gl');
+    var renderer;
+    try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { return null; }
+    if (!renderer.getContext()) return null;
+    var low = (matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 820) || innerWidth < 720;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, low ? 1.5 : 2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.06;
+    renderer.physicallyCorrectLights = true;
+    renderer.shadowMap.enabled = !low;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setClearColor(0x000000, 0);
+    renderer.autoClear = false;
+
+    var C = function (hex) { return new THREE.Color(hex).convertSRGBToLinear(); };
+    var V3 = THREE.Vector3, V2 = THREE.Vector2;
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(24, 1, .1, 60);
+
+    /* --- studio environment from a code-built room of softboxes --- */
+    (function () {
+      var env = new THREE.Scene();
+      var room = new THREE.Mesh(new THREE.BoxGeometry(24, 14, 24), new THREE.MeshBasicMaterial({ color: C('#D9D4CB'), side: THREE.BackSide }));
+      room.position.y = 5; env.add(room);
+      function softbox(w, h, x, y, z, k) {
+        var m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(1, .985, .96).multiplyScalar(k), side: THREE.DoubleSide }));
+        m.position.set(x, y, z); m.lookAt(0, 0, 0); env.add(m);
+      }
+      softbox(10, 6, 0, 11, 0, 3.4);
+      softbox(5, 7, -10, 5, 4, 2.6);
+      softbox(5, 6, 10, 4, -3, 1.3);
+      softbox(8, 3, 0, 3, 11, 1.1);
+      var floor = new THREE.Mesh(new THREE.PlaneGeometry(24, 24), new THREE.MeshBasicMaterial({ color: C('#E9E4DA') }));
+      floor.rotation.x = -Math.PI / 2; floor.position.y = -1.9; env.add(floor);
+      var pm = new THREE.PMREMGenerator(renderer);
+      scene.environment = pm.fromScene(env, .04).texture;
+      pm.dispose();
+    })();
+
+    /* --- textures drawn in code --- */
+    function canvasTex(w, h, draw, srgb) {
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var t = new THREE.CanvasTexture(c);
+      if (srgb !== false) t.encoding = THREE.sRGBEncoding;
+      t.anisotropy = 4;
+      t.redraw = function () { var g = c.getContext('2d'); g.clearRect(0, 0, w, h); draw(g, w, h); t.needsUpdate = true; };
+      t.redraw();
+      return t;
+    }
+    function rnd(seed) { var s = seed; return function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+    var radialTex = canvasTex(128, 128, function (g, w, h) {
+      var gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+      gr.addColorStop(0, '#fff'); gr.addColorStop(.45, 'rgba(255,255,255,.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = '#000'; g.fillRect(0, 0, w, h); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    }, false);
+    var woodTex = canvasTex(512, 512, function (g, w, h) {
+      var r = rnd(7);
+      g.fillStyle = '#fff'; g.fillRect(0, 0, w, h);
+      for (var i = 0; i < 70; i++) {
+        var y = r() * h, a = .03 + r() * .07, amp = 2 + r() * 6, fr = .004 + r() * .01, ph = r() * 6;
+        g.strokeStyle = 'rgba(110,70,35,' + a + ')'; g.lineWidth = .6 + r() * 1.8; g.beginPath();
+        for (var x = 0; x <= w; x += 8) g.lineTo(x, y + Math.sin(x * fr + ph) * amp);
+        g.stroke();
+      }
+    });
+    woodTex.wrapS = woodTex.wrapT = THREE.RepeatWrapping; woodTex.repeat.set(.32, .32);
+    var FD = '"Fraunces", Georgia, serif', FT = '"Karla", Arial, sans-serif';
+    var signTex = canvasTex(512, 326, function (g, w, h) {
+      g.fillStyle = '#F2F0EA'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = '600 104px ' + FD; g.fillText('FOR SALE', w / 2, h * .42);
+      g.fillRect(w * .28, h * .66, w * .44, 3);
+      g.font = '700 30px ' + FT; if ('letterSpacing' in g) g.letterSpacing = '6px';
+      g.fillText('NORTHPOINT HOMES', w / 2, h * .8);
+    });
+    var soldTex = canvasTex(512, 136, function (g, w, h) {
+      g.fillStyle = '#2E5E4E'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = '700 98px ' + FD; if ('letterSpacing' in g) g.letterSpacing = '10px';
+      g.fillText('SOLD', w / 2, h * .54);
+    });
+    function tagTexFor(ch) {
+      return canvasTex(256, 384, function (g, w, h) {
+        g.fillStyle = '#2E5E4E'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.font = '600 190px ' + FD; g.fillText(ch, w / 2, h * .42);
+      });
+    }
+    var tagTexQ = tagTexFor('?'), tagTexD = tagTexFor('$');
+    var photoTex = canvasTex(512, 384, function (g, w, h) {
+      g.fillStyle = '#FBFAF7'; g.fillRect(0, 0, w, h);
+      var p = 22, iw = w - p * 2, ih = h - p * 2 - 26;
+      var sky = g.createLinearGradient(0, p, 0, p + ih); sky.addColorStop(0, '#CFDDD7'); sky.addColorStop(1, '#F2ECE2');
+      g.fillStyle = sky; g.fillRect(p, p, iw, ih);
+      g.fillStyle = '#F1D3A1'; g.beginPath(); g.arc(p + iw * .8, p + ih * .28, 26, 0, 7); g.fill();
+      g.fillStyle = '#C9B596'; g.fillRect(p, p + ih * .78, iw, ih * .22);
+      g.fillStyle = '#FFFFFF'; g.fillRect(p + iw * .2, p + ih * .42, iw * .5, ih * .38);
+      g.fillStyle = '#E6E0D6'; g.beginPath(); g.moveTo(p + iw * .14, p + ih * .44); g.lineTo(p + iw * .45, p + ih * .16); g.lineTo(p + iw * .76, p + ih * .44); g.fill();
+      g.fillStyle = '#2E5E4E'; g.fillRect(p + iw * .41, p + ih * .58, iw * .08, ih * .22);
+      g.fillStyle = '#F4C98E'; g.fillRect(p + iw * .26, p + ih * .54, iw * .1, ih * .1); g.fillRect(p + iw * .55, p + ih * .54, iw * .1, ih * .1);
+      g.fillStyle = '#9AA59F'; g.fillRect(p, h - p - 14, iw * .4, 5);
+    });
+    var envTex = canvasTex(512, 340, function (g, w, h) {
+      g.fillStyle = '#F4F0E8'; g.fillRect(0, 0, w, h);
+      g.strokeStyle = '#D9D0C1'; g.lineWidth = 5; g.beginPath(); g.moveTo(14, 14); g.lineTo(w / 2, h * .56); g.lineTo(w - 14, 14); g.stroke();
+      g.fillStyle = '#2E5E4E'; g.beginPath(); g.arc(w / 2, h * .56, 30, 0, 7); g.fill();
+      g.fillStyle = '#7A6B57'; g.textAlign = 'center'; g.font = '700 34px ' + FT; if ('letterSpacing' in g) g.letterSpacing = '8px';
+      g.fillText('OFFER', w / 2, h * .86);
+    });
+
+    /* --- materials --- */
+    var M = {
+      clay: new THREE.MeshStandardMaterial({ color: C('#F3F0EA'), roughness: .82, metalness: 0, envMapIntensity: .95 }),
+      roof: new THREE.MeshStandardMaterial({ color: C('#E8E2D8'), roughness: .76, envMapIntensity: .95 }),
+      inner: new THREE.MeshStandardMaterial({ color: C('#F1EADF'), roughness: .86, envMapIntensity: .35, emissive: C('#FFB25E'), emissiveIntensity: 0 }),
+      floor: new THREE.MeshStandardMaterial({ color: C('#E6D3B8'), roughness: .8, envMapIntensity: .35, emissive: C('#FFB25E'), emissiveIntensity: 0 }),
+      furn: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .8, envMapIntensity: .45, emissive: C('#FFB25E'), emissiveIntensity: 0 }),
+      wood: new THREE.MeshStandardMaterial({ color: C('#C9A27A'), map: woodTex, roughness: .64, envMapIntensity: .8 }),
+      glaze: new THREE.MeshPhysicalMaterial({ color: C('#2E5E4E'), roughness: .36, clearcoat: 1, clearcoatRoughness: .12, envMapIntensity: 1.15 }),
+      pane: new THREE.MeshBasicMaterial({ color: C('#FFCF8F'), transparent: true, opacity: 0, toneMapped: false, depthWrite: false, side: THREE.DoubleSide }),
+      text: new THREE.MeshBasicMaterial({ map: signTex, transparent: true, toneMapped: false, depthWrite: false }),
+      sold: new THREE.MeshBasicMaterial({ map: soldTex, transparent: true, toneMapped: false, depthWrite: false }),
+      tagText: new THREE.MeshBasicMaterial({ map: tagTexQ, transparent: true, toneMapped: false, depthWrite: false }),
+      photo: new THREE.MeshStandardMaterial({ map: photoTex, roughness: .55, envMapIntensity: .8 }),
+      env: new THREE.MeshStandardMaterial({ map: envTex, roughness: .8, envMapIntensity: .8 }),
+      catcher: new THREE.ShadowMaterial({ color: C('#21342C'), opacity: .13 })
+    };
+    function contactMat(op) { return new THREE.MeshBasicMaterial({ color: C('#28372F'), alphaMap: radialTex, transparent: true, opacity: op, depthWrite: false, toneMapped: false }); }
+
+    /* --- geometry helpers --- */
+    function rrShape(w, h, r, cx, cy, P) {
+      cx = cx || 0; cy = cy || 0; var s = new (P || THREE.Shape)(); var x = cx - w / 2, y = cy - h / 2;
+      s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r);
+      s.quadraticCurveTo(x + w, y + h, x + w - r, y + h); s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r);
+      s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s;
+    }
+    function rrHole(x0, x1, y0, y1, r) { return rrShape(x1 - x0, y1 - y0, r, (x0 + x1) / 2, (y0 + y1) / 2, THREE.Path); }
+    function extrude(shape, depth, bevel, segs, uv) {
+      bevel = bevel === undefined ? .014 : bevel;
+      var o = { depth: Math.max(.001, depth - bevel * 2), bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: segs || 2, curveSegments: 8 };
+      if (uv) o.UVGenerator = uv;
+      var g = new THREE.ExtrudeGeometry(shape, o); g.translate(0, 0, bevel); return g;
+    }
+    function boundsUV(minX, minY, w, h) {
+      return {
+        generateTopUV: function (geo, v, a, b, c) { return [a, b, c].map(function (i) { return new V2((v[i * 3] - minX) / w, (v[i * 3 + 1] - minY) / h); }); },
+        generateSideWallUV: function () { return [new V2(.01, .01), new V2(.02, .01), new V2(.02, .02), new V2(.01, .02)]; }
+      };
+    }
+    function capsule(r, len, seg) {
+      seg = seg || 8; var pts = [], half = len / 2, i, a;
+      for (i = 0; i <= seg; i++) { a = -Math.PI / 2 + (i / seg) * (Math.PI / 2); pts.push(new V2(Math.cos(a) * r + 1e-4, -half + r + Math.sin(a) * r)); }
+      for (i = 0; i <= seg; i++) { a = (i / seg) * (Math.PI / 2); pts.push(new V2(Math.cos(a) * r + 1e-4, half - r + Math.sin(a) * r)); }
+      return new THREE.LatheGeometry(pts, 18);
+    }
+    function disc(R, h) {
+      var pts = [new V2(1e-4, 0)], k = 6, i, a, rr = h / 2;
+      for (i = 0; i <= k; i++) { a = -Math.PI / 2 + (i / k) * Math.PI; pts.push(new V2(R - rr + Math.cos(a) * rr, rr + Math.sin(a) * rr)); }
+      pts.push(new V2(1e-4, h)); return new THREE.LatheGeometry(pts, 28);
+    }
+    function mesh(geo, mat, cast, recv) { var m = new THREE.Mesh(geo, mat); m.castShadow = !!cast; m.receiveShadow = !!recv; return m; }
+    function contact(w, d, op, x, y, z) {
+      var m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), contactMat(op));
+      m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); m.renderOrder = -1; return m;
+    }
+
+    /* --- dimensions --- */
+    var W = 2.0, D = 1.4, H = .95, G = .56, TK = .07, HZ = -.28;
+    var BW = 3.7, BD = 3.0, BH = .14;
+    var hw = W / 2 - TK;
+
+    var world = new THREE.Group(); scene.add(world);
+
+    /* table shadow catcher + contact shadows */
+    var catcher = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), M.catcher);
+    catcher.rotation.x = -Math.PI / 2; catcher.position.y = -BH - .002; catcher.receiveShadow = true; world.add(catcher);
+    world.add(contact(BW * 1.55, BD * 1.65, .42, 0, -BH - .004, .05));
+
+    /* board (the lot) */
+    var boardGeo = extrude(rrShape(BW - .06, BD - .06, .18), BH, .03, 3);
+    boardGeo.rotateX(-Math.PI / 2); boardGeo.translate(0, -BH, 0);
+    world.add(mesh(boardGeo, M.wood, true, true));
+
+    /* path stones, trees, bushes (instanced) */
+    var dummy = new THREE.Object3D();
+    var stones = new THREE.InstancedMesh(disc(.12, .022), M.clay, 3);
+    [.62, .9, 1.18].forEach(function (z, i) { dummy.position.set(-.04, 0, z); dummy.rotation.set(0, i, 0); dummy.scale.set(1, 1, .82); dummy.updateMatrix(); stones.setMatrixAt(i, dummy.matrix); });
+    stones.receiveShadow = true; world.add(stones);
+    var greenPos = [[-1.5, .5, -1.08, 1], [1.52, .5, -1.02, .92], [-.42, .08, .56, .42], [.36, .08, .56, .42]];
+    var canopy = new THREE.InstancedMesh(new THREE.SphereGeometry(.22, 28, 18), M.clay, greenPos.length);
+    var trunks = new THREE.InstancedMesh(capsule(.024, .5), M.clay, 2);
+    greenPos.forEach(function (p, i) {
+      dummy.rotation.set(0, 0, 0); dummy.position.set(p[0], p[1] * p[3] + .22 * p[3] + (i < 2 ? .02 : -.02), p[2]); dummy.scale.setScalar(p[3]); dummy.updateMatrix(); canopy.setMatrixAt(i, dummy.matrix);
+      if (i < 2) { dummy.position.set(p[0], .25, p[2]); dummy.scale.setScalar(1); dummy.updateMatrix(); trunks.setMatrixAt(i, dummy.matrix); world.add(contact(.75, .75, .38, p[0], .003, p[2])); }
+    });
+    canopy.castShadow = trunks.castShadow = true; canopy.receiveShadow = true; world.add(canopy, trunks);
+
+    /* --- house --- */
+    var house = new THREE.Group(); house.position.z = HZ; world.add(house);
+    house.add(contact(W + .9, D + .8, .32, 0, .003, 0));
+
+    var floorGeo = extrude(rrShape(W - TK * 2 + .02, D - TK * 2 + .02, .02), .03, .008);
+    floorGeo.rotateX(-Math.PI / 2);
+    house.add(mesh(floorGeo, M.floor, false, true));
+
+    /* partition with a doorway */
+    function sideGeo(shape, depth) { var g = extrude(shape, depth, .01); g.rotateY(Math.PI / 2); return g; }
+    var hd = D / 2 - TK;
+    var part1 = new THREE.Shape(); part1.moveTo(-hd, 0); part1.lineTo(.02, 0); part1.lineTo(.02, .68); part1.lineTo(-hd, .68); part1.closePath();
+    var part2 = new THREE.Shape(); part2.moveTo(.34, 0); part2.lineTo(hd, 0); part2.lineTo(hd, .68); part2.lineTo(.34, .68); part2.closePath();
+    [part1, part2].forEach(function (s) { var m = mesh(sideGeo(s, .045), M.inner, true, true); m.position.x = .3; house.add(m); });
+
+    /* staging furniture */
+    var FURN = [
+      [-.45, .075, -.38, .64, .13, .22, '#C9D5CD'], [-.45, .16, -.5, .64, .2, .07, '#C9D5CD'],
+      [-.45, .05, -.03, .3, .08, .18, '#C9A27A'], [-.45, .012, -.1, .84, .014, .62, '#EADBC6'],
+      [-.82, .08, .3, .2, .15, .2, '#E3EAE5'], [.62, .07, -.28, .46, .12, .62, '#FBFAF7'],
+      [.62, .15, -.52, .36, .05, .1, '#E3D2BA'], [.62, .09, .38, .26, .14, .2, '#C9A27A'], [.84, .2, .42, .06, .32, .06, '#F3F0EA']
+    ];
+    var fbox = extrude(rrShape(.84, .84, .18), 1, .08, 3); fbox.translate(0, 0, -.5);
+    var furn = new THREE.InstancedMesh(fbox, M.furn, FURN.length);
+    FURN.forEach(function (f, i) { furn.setColorAt(i, C(f[6])); });
+    furn.castShadow = true; furn.receiveShadow = true; house.add(furn);
+
+    /* warm interior light */
+    var bulb = new THREE.PointLight(C('#FFB766'), 0, 4, 2); bulb.position.set(-.1, .62, 0); house.add(bulb);
+
+    /* walls (each on its own hinge so the house can unfold) */
+    function wallPane(group, cx, cy, w, h, z, rotY) {
+      var p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), M.pane); p.position.set(cx, cy, z); if (rotY) p.rotation.y = rotY; group.add(p);
+    }
+    var dx0 = -.2, dx1 = .12, dh = .62;
+    var front = new THREE.Shape();
+    front.moveTo(-hw, 0); front.lineTo(dx0, 0); front.lineTo(dx0, dh); front.lineTo(dx1, dh); front.lineTo(dx1, 0); front.lineTo(hw, 0); front.lineTo(hw, H); front.lineTo(-hw, H); front.closePath();
+    front.holes.push(rrHole(-.74, -.42, .34, .7, .03), rrHole(.42, .76, .34, .7, .03));
+    var hingeF = new THREE.Group(); hingeF.position.set(0, 0, D / 2); house.add(hingeF);
+    var gF = extrude(front, TK, .012); gF.translate(0, 0, -TK); hingeF.add(mesh(gF, M.clay, true, true));
+    wallPane(hingeF, -.58, .52, .32, .36, -TK / 2); wallPane(hingeF, .59, .52, .34, .36, -TK / 2);
+    var doorPivot = new THREE.Group(); doorPivot.position.set(dx0 + .005, 0, -.012); hingeF.add(doorPivot);
+    var doorGeo = extrude(rrShape(.31, .61, .03, .155, .305), .036, .01); doorGeo.translate(0, 0, -.036);
+    doorPivot.add(mesh(doorGeo, M.glaze, true, false));
+    var knob = mesh(new THREE.SphereGeometry(.018, 12, 10), M.wood, false, false); knob.position.set(.26, .3, .01); doorPivot.add(knob);
+
+    var back = rrShape(W - TK * 2, H, .001, 0, H / 2);
+    back.holes.push(rrHole(-.62, -.28, .34, .7, .03), rrHole(.3, .64, .34, .7, .03));
+    var hingeB = new THREE.Group(); hingeB.position.set(0, 0, -D / 2); house.add(hingeB);
+    hingeB.add(mesh(extrude(back, TK, .012), M.clay, true, true));
+    wallPane(hingeB, -.45, .52, .34, .36, TK / 2); wallPane(hingeB, .47, .52, .34, .36, TK / 2);
+
+    function gable() {
+      var s = new THREE.Shape(); s.moveTo(-D / 2, 0); s.lineTo(D / 2, 0); s.lineTo(D / 2, H); s.lineTo(0, H + G); s.lineTo(-D / 2, H); s.closePath();
+      s.holes.push(rrHole(-.18, .18, .36, .7, .03));
+      var c = new THREE.Path(); c.absarc(0, H + .24, .075, 0, Math.PI * 2, true); s.holes.push(c);
+      return s;
+    }
+    var hingeL = new THREE.Group(); hingeL.position.set(-W / 2, 0, 0); house.add(hingeL);
+    hingeL.add(mesh(sideGeo(gable(), TK), M.clay, true, true));
+    wallPane(hingeL, TK / 2, .53, .36, .34, 0, Math.PI / 2);
+    var hingeR = new THREE.Group(); hingeR.position.set(W / 2, 0, 0); house.add(hingeR);
+    var gR = sideGeo(gable(), TK); gR.translate(-TK, 0, 0); hingeR.add(mesh(gR, M.clay, true, true));
+    wallPane(hingeR, -TK / 2, .53, .36, .34, 0, Math.PI / 2);
+
+    /* roof: two glazed-clay slopes, ridge, chimney */
+    var alpha = Math.atan2(G, D / 2), Lr = Math.hypot(D / 2, G) + .17, Wr = W + .26, RT = .075;
+    var roof = new THREE.Group(); house.add(roof);
+    var slopeGeo = extrude(rrShape(Wr, Lr, .05, 0, Lr / 2), RT, .02, 3); slopeGeo.translate(0, 0, -RT);
+    var slopeF = mesh(slopeGeo, M.roof, true, true); slopeF.rotation.x = Math.PI / 2 + alpha; roof.add(slopeF);
+    var backSide = new THREE.Group(); backSide.scale.z = -1; roof.add(backSide);
+    var slopeB = mesh(slopeGeo, M.roof, true, true); slopeB.rotation.x = Math.PI / 2 + alpha; backSide.add(slopeB);
+    var ridge = mesh(capsule(.06, Wr + .02), M.roof, true, false); ridge.rotation.z = Math.PI / 2; ridge.position.y = .04; roof.add(ridge);
+    var chim = extrude(rrShape(.17, .17, .035), .5, .016); chim.rotateX(-Math.PI / 2);
+    var chimney = mesh(chim, M.roof, true, false); chimney.position.set(.55, -.36, -.27); roof.add(chimney);
+    var roofY = H + G;
+
+    /* yard sign with swinging panel and SOLD rider */
+    var sign = new THREE.Group(); sign.position.set(1.42, 0, 1.06); sign.rotation.y = -.42; world.add(sign);
+    var post = mesh(capsule(.028, 1.04), M.clay, true, false); post.position.y = .5; sign.add(post);
+    var arm = mesh(capsule(.022, .56), M.clay, true, false); arm.rotation.z = Math.PI / 2; arm.position.set(-.24, .98, 0); sign.add(arm);
+    sign.add(contact(.5, .5, .4, -.05, .003, 0));
+    var swingG = new THREE.Group(); swingG.position.set(-.27, .965, 0); sign.add(swingG);
+    [-.15, .15].forEach(function (x) { var ch = mesh(capsule(.007, .13), M.clay, true, false); ch.position.set(x, -.055, 0); swingG.add(ch); });
+    var panelGeo = extrude(rrShape(.46, .29, .04), .036, .01); panelGeo.translate(0, -.26, -.018);
+    swingG.add(mesh(panelGeo, M.glaze, true, false));
+    var tf = new THREE.Mesh(new THREE.PlaneGeometry(.42, .267), M.text); tf.position.set(0, -.26, .0195); swingG.add(tf);
+    var tb = tf.clone(); tb.rotation.y = Math.PI; tb.position.z = -.0195; swingG.add(tb);
+    var rider = new THREE.Group(); swingG.add(rider);
+    var riderGeo = extrude(rrShape(.4, .105, .03), .028, .008); riderGeo.translate(0, 0, -.014);
+    rider.add(mesh(riderGeo, M.clay, true, false));
+    var rt = new THREE.Mesh(new THREE.PlaneGeometry(.38, .1), M.sold); rt.position.z = .0152; rider.add(rt);
+    var rtb = rt.clone(); rtb.rotation.y = Math.PI; rtb.position.z = -.0152; rider.add(rtb);
+    var RIDER_HIDE = -.26, RIDER_SHOW = -.06;
+
+    /* price tag */
+    var tagG = new THREE.Group(); tagG.position.set(-1.28, 0, 1.0); world.add(tagG);
+    var tagBody = new THREE.Group(); tagG.add(tagBody);
+    var stake = mesh(capsule(.012, .3), M.wood, true, false); stake.position.y = .15; tagBody.add(stake);
+    var ts = new THREE.Shape(); ts.moveTo(-.13, .26); ts.lineTo(.13, .26); ts.lineTo(.13, .56); ts.lineTo(0, .66); ts.lineTo(-.13, .56); ts.closePath();
+    var th = new THREE.Path(); th.absarc(0, .595, .022, 0, Math.PI * 2, true); ts.holes.push(th);
+    var tagGeo = extrude(ts, .026, .008); tagGeo.translate(0, 0, -.013);
+    tagBody.add(mesh(tagGeo, M.clay, true, false));
+    var tagFace = new THREE.Mesh(new THREE.PlaneGeometry(.24, .36), M.tagText); tagFace.position.set(0, .43, .0135); tagBody.add(tagFace);
+    var tagBack = tagFace.clone(); tagBack.rotation.y = Math.PI; tagBack.position.z = -.0135; tagBody.add(tagBack);
+    var str = new THREE.CatmullRomCurve3([new V3(0, .595, 0), new V3(.04, .7, .01), new V3(.1, .74, 0), new V3(.15, .68, -.01), new V3(.12, .6, 0)]);
+    tagBody.add(mesh(new THREE.TubeGeometry(str, 24, .006, 6, false), M.wood, false, false));
+    var tagShadow = contact(.4, .4, .45, -1.28, .003, 1.0); world.add(tagShadow);
+
+    /* listing photos (instanced) */
+    var photoGeo = extrude(rrShape(.38, .285, .02), .012, .003, 1, boundsUV(-.193, -.1455, .386, .291));
+    var photos = new THREE.InstancedMesh(photoGeo, M.photo, 6);
+    photos.castShadow = true; photos.receiveShadow = true; world.add(photos);
+    var PHOTO = [
+      { s: [-.58, .52, HZ + D / 2 + .02], n: 0, e: [-.74, .92], sp: .3 },
+      { s: [.59, .52, HZ + D / 2 + .02], n: 0, e: [.96, .62], sp: -.5 },
+      { s: [-W / 2 - .02, .53, HZ], n: -Math.PI / 2, e: [-1.48, .16], sp: .7 },
+      { s: [W / 2 + .02, .53, HZ], n: Math.PI / 2, e: [1.5, .12], sp: -.4 },
+      { s: [-.58, .52, HZ + D / 2 + .02], n: 0, e: [-.48, 1.3], sp: -.18 },
+      { s: [.59, .52, HZ + D / 2 + .02], n: 0, e: [.44, 1.28], sp: .22 }
+    ];
+    var qa = new THREE.Quaternion(), qb = new THREE.Quaternion(), qx = new THREE.Quaternion(), qy = new THREE.Quaternion(), e3 = new THREE.Euler();
+    PHOTO.forEach(function (p, i) {
+      p.qs = new THREE.Quaternion().setFromEuler(e3.set(0, p.n, 0));
+      qx.setFromEuler(e3.set(-Math.PI / 2, 0, 0)); qy.setFromEuler(e3.set(0, p.sp, 0));
+      p.qe = qy.clone().multiply(qx);
+      p.ey = .012 + i * .002;
+    });
+    var tints = ['#FFFFFF', '#FBF3EA', '#F0F5F2', '#FFFFFF', '#F6F1EA', '#F3F6F4'];
+    tints.forEach(function (t, i) { photos.setColorAt(i, C(t)); });
+
+    /* offers (instanced envelopes) */
+    var envGeo = extrude(rrShape(.34, .225, .02), .012, .003, 1, boundsUV(-.173, -.1155, .346, .231));
+    var envs = new THREE.InstancedMesh(envGeo, M.env, 4); envs.castShadow = true; envs.receiveShadow = true; world.add(envs);
+    var ENV_AT = new V3(.56, 0, .84);
+    var envShadow = contact(.6, .5, 0, ENV_AT.x, .003, ENV_AT.z); world.add(envShadow);
+
+    /* lights */
+    var hemi = new THREE.HemisphereLight(C('#FFFFFF'), C('#D7CCBC'), 1.25); scene.add(hemi);
+    var sun = new THREE.DirectionalLight(C('#FFF6EA'), 2.6);
+    sun.position.set(-2.1, 9.5, 3.1); sun.castShadow = !low;
+    sun.shadow.mapSize.set(2048, 2048); sun.shadow.camera.left = -3.4; sun.shadow.camera.right = 3.4; sun.shadow.camera.top = 3.4; sun.shadow.camera.bottom = -3.4;
+    sun.shadow.camera.near = 1; sun.shadow.camera.far = 16; sun.shadow.bias = -.0004; sun.shadow.normalBias = .02; sun.shadow.radius = 5;
+    scene.add(sun); scene.add(sun.target);
+
+    /* --- per-frame mapping from state numbers to the model --- */
+    var prevSold = 0;
+    function applyState() {
+      var lift = S.roof + S.idle * .16;
+      roof.position.set(lift * .1, roofY + lift * 1.05, 0); roof.rotation.z = -lift * .07;
+      var wa = S.walls * 1.22;
+      hingeF.rotation.x = wa; hingeB.rotation.x = -wa; hingeL.rotation.z = wa * .92; hingeR.rotation.z = -wa * .92;
+      bulb.intensity = S.lights * 3.2;
+      var em = S.lights * .32;
+      M.inner.emissiveIntensity = M.floor.emissiveIntensity = M.furn.emissiveIntensity = em;
+      M.pane.opacity = S.lights * .78;
+      var n = FURN.length, i, p, s;
+      for (i = 0; i < n; i++) {
+        p = clamp((S.staging - i * .05) / (1 - .05 * (n - 1)));
+        s = p <= 0 ? 0 : backOut(p, 2.2);
+        var f = FURN[i]; dummy.position.set(f[0], f[1] * Math.max(s, .001), f[2]); dummy.rotation.set(0, 0, 0);
+        dummy.scale.set(f[3] * Math.max(s, 1e-4), f[4] * Math.max(s, 1e-4), f[5] * Math.max(s, 1e-4)); dummy.updateMatrix(); furn.setMatrixAt(i, dummy.matrix);
+      }
+      furn.instanceMatrix.needsUpdate = true;
+      /* tag spins up */
+      var tg = S.tag;
+      tagG.visible = tg > .002; tagShadow.material.opacity = .45 * clamp(tg * 2);
+      tagG.scale.setScalar(Math.max(1e-4, backOut(tg, 1.6)));
+      tagBody.rotation.y = .5 + (1 - easeOut(tg)) * Math.PI * 3;
+      /* photos fly out of the windows */
+      for (i = 0; i < PHOTO.length; i++) {
+        var ph = PHOTO[i]; p = clamp((S.photos - i * .07) / (1 - .07 * 5));
+        if (p <= 0) { dummy.scale.setScalar(1e-4); dummy.position.set(ph.s[0], ph.s[1], ph.s[2]); dummy.quaternion.identity(); }
+        else {
+          var e = easeInOut(p), sx = ph.s[0], sy = ph.s[1], sz = ph.s[2], ex = ph.e[0], ez = ph.e[1], ey = ph.ey;
+          var mx = (sx + ex) / 2, mz = (sz + ez) / 2, my = Math.max(sy, ey) + .75 + i * .06;
+          var u = 1 - e;
+          dummy.position.set(u * u * sx + 2 * u * e * mx + e * e * ex, u * u * sy + 2 * u * e * my + e * e * ey, u * u * sz + 2 * u * e * mz + e * e * ez);
+          qa.copy(ph.qs).slerp(ph.qe, easeInOut(clamp((p - .15) / .8)));
+          dummy.quaternion.copy(qa); dummy.scale.setScalar(lerp(.3, 1, easeOut(p / .35)));
+        }
+        dummy.updateMatrix(); photos.setMatrixAt(i, dummy.matrix); dummy.rotation.set(0, 0, 0);
+      }
+      photos.instanceMatrix.needsUpdate = true;
+      /* offers drop and stack by the door */
+      var landed = 0;
+      for (i = 0; i < 4; i++) {
+        p = clamp((S.offers - i * .14) / (1 - .14 * 3));
+        if (p <= 0) { dummy.scale.setScalar(1e-4); dummy.position.set(ENV_AT.x, 2, ENV_AT.z); dummy.rotation.set(0, 0, 0); }
+        else {
+          var y0 = 1.9 + i * .25, y1 = .012 + i * .017;
+          dummy.position.set(ENV_AT.x + (i % 2 ? .025 : -.02) * (1 - p * .5), lerp(y0, y1, bounceOut(p)), ENV_AT.z + (i - 1.5) * .012);
+          dummy.rotation.set(-Math.PI / 2 + (1 - p) * .8, i * .28 - .35 + (1 - p) * 1.2, (1 - p) * .5);
+          dummy.scale.setScalar(1);
+          if (p > .7) landed++;
+        }
+        dummy.updateMatrix(); envs.setMatrixAt(i, dummy.matrix);
+      }
+      envs.instanceMatrix.needsUpdate = true; dummy.rotation.set(0, 0, 0);
+      envShadow.material.opacity = .1 * landed;
+      /* sold rider pops, sign swings */
+      rider.position.y = lerp(RIDER_HIDE, RIDER_SHOW, backOut(S.sold, 2.6));
+      rider.visible = S.sold > .001;
+      if (S.sold > .55 && prevSold <= .55 && !RM) swing.v += 2.6;
+      prevSold = S.sold;
+      swingG.rotation.x = swing.a; swingG.rotation.z = S.sag;
+      doorPivot.rotation.y = -S.door * 1.4;
+      world.rotation.set(lean.p, S.yaw + S.turn * Math.PI / 2 + lean.y + drag.y, 0);
+      world.position.y = S.drop * 1.35;
+    }
+
+    /* --- camera framing from points, per slot --- */
+    var el = .43, az = .66;
+    var f = new V3(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
+    var cx = new V3(f.z, 0, -f.x).normalize(), cy = new V3().crossVectors(f, cx);
+    var STATIC_PTS = [];
+    [-1, 1].forEach(function (sx) { [-1, 1].forEach(function (sz) { STATIC_PTS.push([sx * BW / 2, 0, sz * BD / 2], [sx * BW / 2, -BH, sz * BD / 2]); }); });
+    STATIC_PTS.push([-1.5, .82, -1.08], [1.52, .78, -1.02], [1.42, 1.06, 1.06]);
+    var tmp = new V3(), ctr = new V3();
+    function framePts() {
+      var pts = STATIC_PTS.slice();
+      var top = roofY + .13 + (S.roof + S.idle * .16) * 1.05;
+      pts.push([-Wr / 2, top, HZ], [Wr / 2, top, HZ], [.55, top + .1, HZ - .27]);
+      if (S.walls > .01) {
+        var a = S.walls * 1.22 * .92, hh = H + G;
+        pts.push([-(W / 2 + hh * Math.sin(a)), hh * Math.cos(a), HZ], [W / 2 + hh * Math.sin(a), hh * Math.cos(a), HZ]);
+        var b = S.walls * 1.22;
+        pts.push([0, H * Math.cos(b), HZ + D / 2 + H * Math.sin(b)]);
+      }
+      return pts;
+    }
+    function fit(iw, ih, rw, rh, pl, pt) {
+      var aspect = iw / ih, tv = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), thz = tv * aspect;
+      var yaw = S.yaw + S.turn * Math.PI / 2, cs = Math.cos(yaw), sn = Math.sin(yaw);
+      var pts = framePts().map(function (p) { return new V3(p[0] * cs + p[2] * sn, p[1], -p[0] * sn + p[2] * cs); });
+      ctr.set(0, .42, 0);
+      var umin = 1e9, umax = -1e9, vmin = 1e9, vmax = -1e9;
+      pts.forEach(function (p) { tmp.subVectors(p, ctr); var u = tmp.dot(cx), v = tmp.dot(cy); umin = Math.min(umin, u); umax = Math.max(umax, u); vmin = Math.min(vmin, v); vmax = Math.max(vmax, v); });
+      ctr.addScaledVector(cx, (umin + umax) / 2).addScaledVector(cy, (vmin + vmax) / 2);
+      var dist = 0, m = .9;
+      pts.forEach(function (p) { tmp.subVectors(p, ctr); var u = Math.abs(tmp.dot(cx)), v = Math.abs(tmp.dot(cy)), w = tmp.dot(f); dist = Math.max(dist, w + u / (thz * m), w + v / (tv * m)); });
+      camera.position.copy(ctr).addScaledVector(f, dist);
+      camera.up.set(0, 1, 0); camera.lookAt(ctr);
+      camera.near = Math.max(.1, dist - 8); camera.far = dist + 8; camera.aspect = aspect;
+      camera.setViewOffset(iw, ih, -pl, -pt, rw, rh);
+      camera.updateProjectionMatrix();
+      sun.target.position.set(0, 0, 0);
+    }
+
+    /* --- slots, flights and rendering --- */
+    var slot = null, flight = null, lastRect = null, lastKey = '', drawn = false, cw = 0, ch = 0;
+    function padOf(el) { if (!el.__pad) { var p = (el.getAttribute('data-pad') || '20 10 20 10').split(' ').map(Number); el.__pad = { t: p[0], r: p[1], b: p[2], l: p[3] }; } return el.__pad; }
+    function slotRect(el) {
+      var r = el.getBoundingClientRect(); if (r.width < 8 || r.height < 8) return null;
+      var p = padOf(el); return { x: r.left, y: r.top, w: r.width, h: r.height, t: p.t, r: p.r, b: p.b, l: p.l };
+    }
+    function visible(r) { return r && r.y < innerHeight && r.y + r.h > 0 && r.x < innerWidth && r.x + r.w > 0; }
+    function lerpRect(a, b, t) { var o = {}; for (var k in b) o[k] = lerp(a[k], b[k], t); return o; }
+    function resize(force) {
+      var w = canvas.clientWidth, h = canvas.clientHeight;
+      if (!force && w === cw && Math.abs(h - ch) < 160) return;
+      cw = w; ch = h; renderer.setSize(w, h, false); lastKey = '';
+    }
+    resize(true);
+    addEventListener('resize', function () { resize(false); }, { passive: true });
+    function clearOnce() { if (drawn) { renderer.setScissorTest(false); renderer.clear(); drawn = false; lastKey = ''; } }
+    function attach(el) {
+      if (!el || el === slot) return;
+      var from = lastRect && visible(lastRect) ? lastRect : null;
+      var prev = slot; slot = el;
+      if (!hasGSAP || RM || !prev) { flight = null; return; }
+      if (from) {
+        flight = { from: from, t: 0 };
+        var fl = flight;
+        gsap.to(fl, { t: 1, duration: .85, ease: 'power2.inOut', onComplete: function () { if (flight === fl) flight = null; } });
+      } else {
+        flight = null; S.drop = 1;
+        gsap.to(S, { drop: 0, duration: 1.0, ease: 'bounce.out', overwrite: 'auto' });
+      }
+    }
+    var firstFrame = true;
+    function frame(dt) {
+      var moving = stepSprings(dt);
+      if (!slot) return clearOnce();
+      var r = slotRect(slot);
+      if (!r) { lastRect = null; return clearOnce(); }
+      if (flight) r = lerpRect(flight.from, r, flight.t);
+      lastRect = r;
+      if (!visible(r)) return clearOnce();
+      var key = [r.x | 0, r.y | 0, r.w | 0, r.h | 0, S.roof, S.walls, S.lights, S.staging, S.tag, S.photos, S.offers, S.sold, S.door, S.sag, S.yaw, S.turn, S.drop, S.idle, lean.y, lean.p, drag.y, swing.a, tagMode].map(function (v) { return typeof v === 'number' ? v.toFixed(4) : v; }).join('|');
+      if (key === lastKey && !moving) return;
+      lastKey = key;
+      applyState();
+      var iw = Math.max(20, r.w - r.l - r.r), ih = Math.max(20, r.h - r.t - r.b);
+      fit(iw, ih, r.w, r.h, r.l, r.t);
+      renderer.setScissorTest(false); renderer.clear();
+      renderer.setViewport(r.x, ch - r.y - r.h, r.w, r.h);
+      renderer.setScissor(r.x, ch - r.y - r.h, r.w, r.h);
+      renderer.setScissorTest(true);
+      renderer.render(scene, camera);
+      drawn = true;
+      if (firstFrame) { firstFrame = false; root.classList.add('gl-ready'); }
+    }
+    function doorPoint() {
+      if (!lastRect) return null;
+      world.updateMatrixWorld(true);
+      var v = new V3(-.04, .32, HZ + D / 2 + .05); v.applyMatrix4(world.matrixWorld); v.project(camera);
+      return { x: lastRect.x + (v.x + 1) / 2 * lastRect.w, y: lastRect.y + (1 - v.y) / 2 * lastRect.h };
+    }
+    function setTag(m) { M.tagText.map = m === '$' ? tagTexD : tagTexQ; M.tagText.needsUpdate = true; lastKey = ''; }
+    function redrawTexts() { [signTex, soldTex, tagTexQ, tagTexD, envTex].forEach(function (t) { t.redraw(); }); lastKey = ''; }
+    if (document.fonts && document.fonts.load) {
+      Promise.all([document.fonts.load('600 100px "Fraunces"'), document.fonts.load('700 30px "Karla"')]).then(redrawTexts, function () {});
+    }
+    canvas.addEventListener('webglcontextlost', function (e) { e.preventDefault(); root.classList.add('no-gl'); slot = null; });
+    return { attach: attach, frame: frame, doorPoint: doorPoint, setTag: setTag, invalidate: function () { lastKey = ''; } };
+  }
+
+  /* ticker */
+  var lastT = performance.now();
+  function tick() {
+    var now = performance.now(), dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
+    if (GL) GL.frame(dt);
+  }
+  if (hasGSAP) gsap.ticker.add(tick); else (function loop() { tick(); requestAnimationFrame(loop); })();
+
+  /* ------------------------------------------------------------------ */
+  /* Interactions on stages: drag to turn (spring return), tap to open   */
+  /* ------------------------------------------------------------------ */
+  var heroStage = $('.stage-hero');
+  var heroOpen = false, idleTween = null;
+  function setIdle(on) {
+    if (!hasGSAP) return;
+    if (idleTween) { idleTween.kill(); idleTween = null; }
+    if (on && !RM) idleTween = gsap.fromTo(S, { idle: 0 }, { idle: 1, duration: 1.7, ease: 'sine.inOut', yoyo: true, repeat: -1, repeatDelay: 1.4, delay: .8 });
+    else gsap.to(S, { idle: 0, duration: .5, overwrite: 'auto' });
+  }
+  function toggleHero() {
+    heroOpen = !heroOpen;
+    heroStage.setAttribute('aria-pressed', String(heroOpen));
+    $('#hero-hint').textContent = heroOpen ? 'Drag to turn · Tap to close' : 'Drag to turn · Tap to open';
+    $('#hero-stage-state').textContent = heroOpen ? 'The roof is off and the walls fold out, showing staged rooms with warm light.' : 'The house is closed again, with the roof lifted a little.';
+    if (current !== 'hero') return;
+    if (heroOpen) { setIdle(false); go('open'); } else { go('hero'); setIdle(true); }
+  }
+  function bindStage(el, onTap) {
+    if (!el) return;
+    var id = null, sx = 0, sy = 0, base = 0, moved = false, lx = 0, lt = 0;
+    el.addEventListener('pointerdown', function (e) { if (e.button !== 0) return; id = e.pointerId; sx = lx = e.clientX; sy = e.clientY; base = drag.y; moved = false; lt = performance.now(); });
+    el.addEventListener('pointermove', function (e) {
+      if (e.pointerId !== id) return;
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!moved && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) { moved = true; drag.active = true; el.classList.add('is-dragging'); try { el.setPointerCapture(id); } catch (_) {} }
+      if (moved) { var now = performance.now(), dtt = Math.max(8, now - lt); drag.v = (e.clientX - lx) * .0085 / (dtt / 1000); drag.y = clamp(base + dx * .0085, -1.5, 1.5); lx = e.clientX; lt = now; }
+    });
+    function end(e) {
+      if (e.pointerId !== id) return;
+      if (moved) { drag.active = false; drag.v = clamp(drag.v, -8, 8); el.classList.remove('is-dragging'); }
+      else if (e.type === 'pointerup' && onTap) onTap();
+      id = null;
+    }
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); drag.v += (e.key === 'ArrowLeft' ? -1 : 1) * 3; }
+      else if ((e.key === 'Enter' || e.key === ' ') && onTap) { e.preventDefault(); onTap(); }
+    });
+  }
+  bindStage(heroStage, toggleHero);
+  $$('[data-slot]').forEach(function (el) { if (el !== heroStage) bindStage(el, null); });
+  if (FINE.matches && !RM) {
+    addEventListener('pointermove', function (e) {
+      var k = current === 'hero' ? 1 : .55;
+      lean.ty = ((e.clientX / innerWidth) - .5) * .34 * k; lean.tp = ((e.clientY / innerHeight) - .5) * .07 * k;
+    }, { passive: true });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Section activation drives the slot and the house state              */
+  /* ------------------------------------------------------------------ */
+  var current = '', problemIdx = 0, stepIdx = 0, proofIdx = 0;
+  var slots = {}; $$('[data-slot]').forEach(function (el) { slots[el.getAttribute('data-slot')] = el; });
+  function slotUsable(name) { var el = slots[name]; if (!el) return null; var r = el.getBoundingClientRect(); return (r.width > 8 && r.height > 8) ? el : null; }
+  var stageLabels = ['Clay model: a price tag spins up next to the house.', 'Clay model: the roof lifts off and the walls fold out to show staged rooms.', 'Clay model: listing photos fly out of the windows and land around the house.', 'Clay model: offer envelopes drop and stack by the front door.', 'Clay model: a sold sign pops up on the yard sign.'];
+  function activate(name) {
+    if (name === current) return;
+    current = name;
+    $$('[data-nav]').forEach(function (a) { if (a.getAttribute('data-nav') === name) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+    if (GL) { var el = slotUsable(name); if (el) GL.attach(el); }
+    if (name !== 'hero') setIdle(false);
+    if (name === 'hero') { if (heroOpen) go('open'); else { go('hero'); setIdle(true); } }
+    else if (name === 'problem') go('problem' + problemIdx);
+    else if (name === 'how') { go('how' + stepIdx); if (mode !== 'h' && hasGSAP) gsap.to(S, { turn: 1, yaw: 0, duration: RM ? .3 : 1.1, ease: 'power2.inOut', overwrite: 'auto' }); }
+    else if (name === 'benefits') go('benefits');
+    else if (name === 'final') playFinal();
+  }
+  function setProblem(i) { problemIdx = i; if (current === 'problem') go('problem' + i); }
+  function setStep(k) {
+    k = clamp(k, 0, 4) | 0;
+    var changed = k !== stepIdx; stepIdx = k;
+    updateProg('how', k, 5);
+    var hs = $('#how-stage'); if (hs) hs.setAttribute('aria-label', stageLabels[k]);
+    if (changed && current === 'how') go('how' + k);
+  }
+  function playFinal() {
+    go('final');
+    if (!hasGSAP || RM) { S.roof = 0; S.sold = 1; return; }
+    gsap.killTweensOf(S, 'roof,sold');
+    S.sold = 0;
+    gsap.timeline()
+      .to(S, { roof: .9, duration: .8, ease: 'power2.out' })
+      .to(S, { roof: 0, duration: .5, ease: 'power3.in' }, '+=.25')
+      .call(function () { swing.v += 3.4; })
+      .to(S, { sold: 1, duration: .9, ease: 'none' }, '+=.05');
+  }
+
+  /* progress readouts and dots */
+  function updateProg(name, k, n) {
+    var box = $('[data-prog="' + name + '"]'); if (box) { $('[data-prog-n]', box).textContent = k + 1; $('[data-prog-bar]', box).style.setProperty('--p', ((k + 1) / n).toFixed(3)); }
+    $$('[data-dots="' + name + '"] button').forEach(function (b, i) { if (i === k) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+  }
+  function makeDots(name, n, label, onGo) {
+    var box = $('[data-dots="' + name + '"]'); if (!box) return;
+    for (var i = 0; i < n; i++) (function (i) {
+      var b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', label + ' ' + (i + 1));
+      b.addEventListener('click', function () { onGo(i); }); box.appendChild(b);
+    })(i);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Scroll engine                                                       */
+  /* ------------------------------------------------------------------ */
+  var lenis = null;
+  var howST = null, proofST = null;
+  var steps = $$('.step'), howVP = $('.how-viewport'), track = $('.how-track');
+  var cylView = $('#cyl-view'), ring = $('#cyl'), rcards = $$('.rcard'), NC = rcards.length, STEP_A = 360 / NC;
+  var cyl = { scroll: 0, drag: 0, cur: 0, radius: 0, on: false };
+
+  function scrollToY(y) { if (lenis) lenis.scrollTo(y, { duration: 1.1 }); else window.scrollTo({ top: y, behavior: RM ? 'auto' : 'smooth' }); }
+  function goStep(k) {
+    if (mode === 'h' && howST) { scrollToY(howST.start + (howST.end - howST.start) * k / 4); }
+    else if (mode === 'swipe') { howVP.scrollTo({ left: steps[k].offsetLeft - parseFloat(getComputedStyle(howVP).paddingLeft), behavior: 'smooth' }); }
+    else steps[k].scrollIntoView({ block: 'center' });
+  }
+  function goProof(k) {
+    if (mode === 'h' && cyl.on) { var target = -k * STEP_A; gsap.to(cyl, { drag: target - cyl.scroll, duration: .9, ease: 'elastic.out(1,.75)' }); }
+    else if (mode === 'swipe') { cylView.scrollTo({ left: rcards[k].offsetLeft - parseFloat(getComputedStyle(cylView).paddingLeft), behavior: 'smooth' }); }
+  }
+  makeDots('how', 5, 'Go to step', goStep);
+  makeDots('proof', NC, 'Go to result', goProof);
+  updateProg('how', 0, 5); updateProg('proof', 0, NC);
+  $$('[data-cyl]').forEach(function (b) { b.addEventListener('click', function () { goProof(((proofIdx + Number(b.getAttribute('data-cyl'))) % NC + NC) % NC); }); });
+
+  /* swipe-mode readers */
+  function nearestChild(vp, kids) {
+    var c = vp.scrollLeft + vp.clientWidth / 2, best = 0, bd = 1e9;
+    kids.forEach(function (k, i) { var m = k.offsetLeft + k.offsetWidth / 2, d = Math.abs(m - c); if (d < bd) { bd = d; best = i; } });
+    if (vp.scrollLeft + vp.clientWidth >= vp.scrollWidth - 4) best = kids.length - 1;
+    if (vp.scrollLeft <= 2) best = 0;
+    return best;
+  }
+  howVP.addEventListener('scroll', function () { if (mode === 'swipe') setStep(nearestChild(howVP, steps)); }, { passive: true });
+  cylView.addEventListener('scroll', function () { if (mode === 'swipe') { proofIdx = nearestChild(cylView, rcards); updateProg('proof', proofIdx, NC); } }, { passive: true });
+
+  /* stacked-mode readers */
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (ents) { ents.forEach(function (en) { if (en.isIntersecting && mode === 'stack') setStep(Number(en.target.getAttribute('data-step'))); }); }, { rootMargin: '-45% 0px -45% 0px' });
+    steps.forEach(function (s) { io.observe(s); });
+  }
+
+  /* cylinder (desktop) */
+  function layoutCyl() {
+    if (!cyl.on) return;
+    var w = rcards[0].offsetWidth;
+    cyl.radius = Math.round(w / 2 / Math.tan(Math.PI / NC)) + 46;
+    rcards.forEach(function (c, i) { c.style.transform = 'rotateY(' + (i * STEP_A) + 'deg) translateZ(' + cyl.radius + 'px)'; });
+  }
+  function cylTick() {
+    if (!cyl.on) return;
+    var target = cyl.scroll + cyl.drag;
+    cyl.cur += (target - cyl.cur) * .14;
+    if (Math.abs(target - cyl.cur) < .01) cyl.cur = target;
+    ring.style.transform = 'translateZ(' + (-cyl.radius) + 'px) rotateY(' + cyl.cur.toFixed(3) + 'deg)';
+    var front = Math.round(-cyl.cur / STEP_A); front = ((front % NC) + NC) % NC;
+    rcards.forEach(function (c, i) {
+      var a = ((i * STEP_A + cyl.cur) % 360 + 540) % 360 - 180;
+      var o = 1 - Math.min(1, Math.abs(a) / 150) * .75;
+      c.style.opacity = o.toFixed(3);
+      c.style.pointerEvents = i === front ? 'auto' : 'none';
+      c.setAttribute('aria-hidden', i === front ? 'false' : 'true');
+    });
+    if (front !== proofIdx) { proofIdx = front; updateProg('proof', front, NC); }
+  }
+  (function bindCylDrag() {
+    var id = null, sx = 0, base = 0, lx = 0, lt = 0, vel = 0, moved = false;
+    cylView.addEventListener('pointerdown', function (e) { if (mode !== 'h' || e.button !== 0) return; id = e.pointerId; sx = lx = e.clientX; base = cyl.drag; vel = 0; moved = false; lt = performance.now(); gsap.killTweensOf(cyl); });
+    cylView.addEventListener('pointermove', function (e) {
+      if (e.pointerId !== id) return;
+      var dx = e.clientX - sx;
+      if (!moved && Math.abs(dx) > 5) { moved = true; cylView.classList.add('is-dragging'); try { cylView.setPointerCapture(id); } catch (_) {} }
+      if (moved) { var now = performance.now(); vel = (e.clientX - lx) / Math.max(8, now - lt); lx = e.clientX; lt = now; cyl.drag = base + dx * .28; }
+    });
+    function end(e) {
+      if (e.pointerId !== id) return; id = null; cylView.classList.remove('is-dragging');
+      if (!moved) return;
+      var total = cyl.scroll + cyl.drag + vel * 120 * .28;
+      var snapped = Math.round(total / STEP_A) * STEP_A;
+      gsap.to(cyl, { drag: snapped - cyl.scroll, duration: 1, ease: 'elastic.out(1,.7)' });
+    }
+    cylView.addEventListener('pointerup', end); cylView.addEventListener('pointercancel', end);
+  })();
+
+  /* sticky-stack problem card states */
+  var pcards = $$('.pcard');
+
+  /* benefits */
+  var deals = $$('.deal'), dealt = false;
+  function dealCards() {
+    if (dealt) return; dealt = true;
+    var p = GL ? GL.doorPoint() : null;
+    if (!p || p.y < -200 || p.y > innerHeight + 200) { var sr = slots.benefits.getBoundingClientRect(); p = { x: sr.left + sr.width / 2, y: sr.top + sr.height * .6 }; }
+    gsap.to(S, { door: 1, duration: .4, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to(S, { door: 0, duration: .7, delay: 1.7, ease: 'power2.inOut' });
+    deals.forEach(function (el, i) {
+      var r = el.getBoundingClientRect(), dx = p.x - (r.left + r.width / 2), dy = p.y - (r.top + r.height / 2);
+      gsap.fromTo(el, { x: dx, y: dy, scale: .1, rotation: (i % 2 ? -1 : 1) * (16 + i * 4), autoAlpha: 0 },
+        { x: 0, y: 0, scale: 1, rotation: 0, autoAlpha: 1, duration: 1.05, ease: 'back.out(1.3)', delay: .3 + i * .12, overwrite: 'auto', clearProps: 'transform,opacity,visibility' });
+    });
+  }
+
+  function setupMode() {
+    if (!hasGSAP) return null;
+    return gsap.context(function () {
+      howST = null; proofST = null; cyl.on = false; dealt = false;
+      var cleanup = null;
+      if (mode === 'h') {
+        /* HORIZONTAL 1: steps travel sideways, house turns the corner */
+        var dist = function () { return Math.max(0, track.scrollWidth - howVP.clientWidth); };
+        var tw = gsap.to(track, { x: function () { return -dist(); }, ease: 'none' });
+        howST = ScrollTrigger.create({
+          animation: tw, trigger: '#how', pin: true, start: 'top top', end: function () { return '+=' + Math.round(dist() * 1.05); },
+          scrub: .7, invalidateOnRefresh: true, refreshPriority: 2, anticipatePin: 1,
+          snap: { snapTo: 1 / 4, duration: { min: .25, max: .7 }, delay: .12, ease: 'power2.inOut', inertia: false },
+          onUpdate: function (self) { S.turn = smooth(self.progress / .1); setStep(Math.round(self.progress * 4)); }
+        });
+        /* HORIZONTAL 2: cylinder rotates with scroll and drag */
+        cyl.on = true; cyl.scroll = 0; cyl.drag = 0; cyl.cur = 0; layoutCyl();
+        proofST = ScrollTrigger.create({
+          trigger: '#results', pin: true, start: 'top top', end: function () { return '+=' + Math.round(innerHeight * 1.5); }, refreshPriority: 1, invalidateOnRefresh: true,
+          snap: { snapTo: 1 / (NC - 1), duration: { min: .25, max: .7 }, delay: .12, ease: 'power2.inOut', inertia: false },
+          onUpdate: function (self) { cyl.scroll = -self.progress * STEP_A * (NC - 1); }
+        });
+        gsap.ticker.add(cylTick);
+        var onR = function () { layoutCyl(); }; addEventListener('resize', onR);
+        /* deck deal from the front door */
+        gsap.set(deals, { autoAlpha: 0 });
+        ScrollTrigger.create({ trigger: '.deck', start: 'top 78%', once: true, onEnter: dealCards });
+        cleanup = function () {
+          gsap.ticker.remove(cylTick); removeEventListener('resize', onR);
+          ring.style.transform = ''; rcards.forEach(function (c) { c.style.transform = ''; c.style.opacity = ''; c.style.pointerEvents = ''; c.removeAttribute('aria-hidden'); });
+          gsap.set(deals, { clearProps: 'all' });
+        };
+      }
+      if (mode === 'swipe') {
+        gsap.from(deals, { y: 46, autoAlpha: 0, duration: .7, ease: 'back.out(1.6)', stagger: .08, scrollTrigger: { trigger: '.deck', start: 'top 86%', once: true } });
+      }
+      if (mode !== 'stack') {
+        /* sticky stack: the card beneath scales back and tilts */
+        pcards.forEach(function (c, i) {
+          if (i === pcards.length - 1) return;
+          var next = pcards[i + 1];
+          var st = { trigger: next, start: 'top bottom', end: function () { return 'top ' + (parseFloat(getComputedStyle(next).top) || 80) + 'px'; }, scrub: true, invalidateOnRefresh: true };
+          gsap.to($('.pcard-in', c), { scale: .9, rotationX: 9, yPercent: -2, transformPerspective: 1100, ease: 'none', scrollTrigger: st });
+          gsap.to($('.pcard-shade', c), { opacity: .07, ease: 'none', scrollTrigger: Object.assign({}, st) });
+        });
+        /* pricing cards rise and settle */
+        gsap.from('.plan', { y: 90, rotationX: 24, transformPerspective: 1000, transformOrigin: '50% 100%', autoAlpha: 0, duration: 1.1, ease: 'back.out(1.35)', stagger: .12, scrollTrigger: { trigger: '.plans', start: 'top 85%', once: true } });
+      }
+      pcards.forEach(function (c, i) {
+        ScrollTrigger.create({ trigger: c, start: 'top 62%', onEnter: function () { setProblem(i); }, onLeaveBack: function () { setProblem(Math.max(0, i - 1)); } });
+      });
+      /* which section owns the house */
+      $$('[data-sec]').forEach(function (sec) {
+        ScrollTrigger.create({ trigger: sec, start: 'top 64%', end: 'bottom 64%', onToggle: function (self) { if (self.isActive) activate(sec.getAttribute('data-sec')); } });
+      });
+      return cleanup;
+    });
+  }
+
+  var ctx = null;
+  if (hasGSAP) {
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
+    if (window.Lenis && !RM) {
+      lenis = new Lenis({ lerp: .11, smoothWheel: true });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+      gsap.ticker.lagSmoothing(0);
+    }
+    ctx = setupMode();
+    var onMQ = function () {
+      RM = RMQ.matches; var m = getMode(); if (m === mode) return;
+      mode = m; applyModeClass(); current = '';
+      if (ctx) ctx.revert(); ctx = setupMode(); ScrollTrigger.refresh();
+    };
+    HQ.addEventListener ? HQ.addEventListener('change', onMQ) : HQ.addListener(onMQ);
+    RMQ.addEventListener ? RMQ.addEventListener('change', onMQ) : RMQ.addListener(onMQ);
+    addEventListener('load', function () { ScrollTrigger.refresh(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+  } else {
+    activate('hero');
+  }
+  if (!current) activate('hero');
+
+  /* anchors through Lenis (accounts for pin spacers) */
+  $$('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href'); if (id.length < 2) return;
+      var t = document.querySelector(id); if (!t) return;
+      e.preventDefault();
+      var navh = $('#nav').offsetHeight;
+      var y = t.getBoundingClientRect().top + scrollY - (id === '#top' ? 0 : (t.matches('#how,#results') && mode === 'h' ? 0 : navh + 8));
+      if (id === '#top') y = 0;
+      scrollToY(Math.max(0, y));
+      if (id === '#main') $('#main').focus({ preventScroll: true });
+    });
+  });
+  $('#main').setAttribute('tabindex', '-1');
+
+  /* nav border + bottom CTA bar */
+  var nav = $('#nav');
+  addEventListener('scroll', function () { nav.classList.toggle('scrolled', scrollY > 8); }, { passive: true });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (en) { document.body.classList.toggle('show-bar', !en[0].isIntersecting); }).observe($('#hero-cta'));
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Cards: tilt with glare (fine pointers), flip (all)                  */
+  /* ------------------------------------------------------------------ */
+  function bindTilt(card, maxX, maxY) {
+    if (!FINE.matches || RM) return;
+    card.addEventListener('pointermove', function (e) {
+      var r = card.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+      card.style.setProperty('--rx', ((.5 - py) * maxX).toFixed(2) + 'deg');
+      card.style.setProperty('--ry', ((px - .5) * maxY).toFixed(2) + 'deg');
+      card.style.setProperty('--gx', (px * 100).toFixed(1) + '%'); card.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
+      card.classList.add('is-tilting');
+    });
+    card.addEventListener('pointerleave', function () { card.classList.remove('is-tilting'); card.style.setProperty('--rx', '0deg'); card.style.setProperty('--ry', '0deg'); });
+  }
+  $$('.bcard').forEach(function (card) {
+    bindTilt(card, 10, 12);
+    var btn = $('.flip-btn', card), lab = $('span', btn);
+    function flip() { var on = !card.classList.contains('flipped'); card.classList.toggle('flipped', on); btn.setAttribute('aria-pressed', String(on)); lab.textContent = on ? 'Back' : 'Details'; }
+    btn.addEventListener('click', function (e) { e.stopPropagation(); flip(); });
+    card.addEventListener('click', function () { flip(); });
+  });
+  $$('.plan').forEach(function (c) {
+    if (!FINE.matches || RM) return;
+    c.addEventListener('pointermove', function (e) { var r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5; c.style.transform = 'perspective(1000px) rotateX(' + (-py * 5).toFixed(2) + 'deg) rotateY(' + (px * 6).toFixed(2) + 'deg)'; c.style.transition = 'transform .1s'; });
+    c.addEventListener('pointerleave', function () { c.style.transition = 'transform .6s cubic-bezier(.2,.9,.25,1)'; c.style.transform = ''; });
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Compare: draggable divider                                          */
+  /* ------------------------------------------------------------------ */
+  (function () {
+    var wrap = $('#cmp'), dv = $('#cmp-divider'), val = 50;
+    function set(v) { val = clamp(v, 30, 70); wrap.style.setProperty('--split', val + '%'); dv.setAttribute('aria-valuenow', Math.round(val)); dv.setAttribute('aria-valuetext', 'Listing and hoping ' + Math.round(val) + ' percent, plan with dates ' + Math.round(100 - val) + ' percent'); }
+    var id = null;
+    dv.addEventListener('pointerdown', function (e) { id = e.pointerId; try { dv.setPointerCapture(id); } catch (_) {} e.preventDefault(); });
+    dv.addEventListener('pointermove', function (e) { if (e.pointerId !== id) return; var r = wrap.getBoundingClientRect(); set((e.clientX - r.left) / r.width * 100); });
+    function up(e) { if (e.pointerId === id) id = null; }
+    dv.addEventListener('pointerup', up); dv.addEventListener('pointercancel', up);
+    dv.addEventListener('keydown', function (e) {
+      var k = e.key;
+      if (k === 'ArrowLeft' || k === 'ArrowDown') set(val - 5); else if (k === 'ArrowRight' || k === 'ArrowUp') set(val + 5);
+      else if (k === 'Home') set(30); else if (k === 'End') set(70); else return;
+      e.preventDefault();
+    });
+    set(50);
+  })();
+
+  /* ------------------------------------------------------------------ */
+  /* Pricing: % or dollars, from the visitor's own price                 */
+  /* ------------------------------------------------------------------ */
+  (function () {
+    var plans = $('#plans'), input = $('#sale-price'), live = $('#price-live'), segBtns = $$('.seg button'), showUsd = false;
+    var fmt = function (n) { return n.toLocaleString('en-US', { maximumFractionDigits: 0 }); };
+    function price() { var n = Number(String(input.value).replace(/[^0-9.]/g, '')); return isFinite(n) && n > 0 ? n : 0; }
+    function render() {
+      var p = price();
+      $$('[data-rate]', plans).forEach(function (el) { var r = Number(el.getAttribute('data-rate')); el.textContent = p ? '$' + fmt(p * r / 100) : '$0'; });
+      $$('[data-sub]', plans).forEach(function (el) { var r = el.getAttribute('data-sub'); el.textContent = r + '% of a $' + fmt(p) + ' sale'; });
+      plans.classList.toggle('dollars', showUsd);
+      segBtns.forEach(function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-show') === 'usd') === showUsd)); });
+      live.textContent = showUsd ? ('At a $' + fmt(p) + ' sale: Essentials $' + fmt(p * .025) + ', Full plan $' + fmt(p * .03) + '.') : 'Showing commission as a percentage: Essentials 2.5 percent, Full plan 3 percent.';
+    }
+    segBtns.forEach(function (b) { b.addEventListener('click', function () { showUsd = b.getAttribute('data-show') === 'usd'; render(); }); });
+    input.addEventListener('input', function () { showUsd = true; render(); });
+    input.addEventListener('blur', function () { var p = price(); if (p) input.value = fmt(p); });
+    render();
+  })();
+
+  /* ------------------------------------------------------------------ */
+  /* FAQ accordion                                                       */
+  /* ------------------------------------------------------------------ */
+  $$('.acc-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var item = b.closest('.acc-item'), on = !item.classList.contains('open');
+      item.classList.toggle('open', on); b.setAttribute('aria-expanded', String(on));
+    });
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Valuation sheet                                                     */
+  /* ------------------------------------------------------------------ */
+  (function () {
+    var sheet = $('#sheet'), panel = $('.sheet-panel', sheet), form = $('#val-form'), done = $('#sheet-done'), err = $('#f-err');
+    var behind = [$('#nav'), $('#main'), $('.foot'), $('#ctabar')];
+    var opener = null;
+    function open(e) {
+      opener = e && e.currentTarget;
+      sheet.hidden = false; void sheet.offsetWidth; sheet.classList.add('open');
+      behind.forEach(function (el) { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+      if (lenis) lenis.stop();
+      document.body.style.overflow = 'hidden';
+      setTimeout(function () { (form.hidden ? $('#done-title') : $('#f-addr')).focus(); }, 60);
+    }
+    function close() {
+      sheet.classList.remove('open');
+      behind.forEach(function (el) { el.removeAttribute('inert'); el.removeAttribute('aria-hidden'); });
+      if (lenis) lenis.start();
+      document.body.style.overflow = '';
+      setTimeout(function () { sheet.hidden = true; }, RM ? 0 : 420);
+      if (opener && opener.focus) opener.focus({ preventScroll: true });
+    }
+    $$('[data-open-form]').forEach(function (b) { b.addEventListener('click', open); });
+    $$('[data-close]', sheet).forEach(function (b) { b.addEventListener('click', close); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !sheet.hidden) close(); });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var bad = [];
+      ['f-addr', 'f-name', 'f-email'].forEach(function (id) {
+        var el = $('#' + id), ok = el.value.trim().length > 1 && (id !== 'f-email' || /.+@.+\..+/.test(el.value));
+        el.setAttribute('aria-invalid', ok ? 'false' : 'true'); if (!ok) bad.push(el);
+      });
+      if (bad.length) { err.textContent = 'Please add your ' + bad.map(function (el) { return $('label[for="' + el.id + '"]').textContent.toLowerCase(); }).join(', ') + '.'; bad[0].focus(); return; }
+      err.textContent = '';
+      $('#done-text').textContent = 'Thanks, ' + $('#f-name').value.trim() + '. Your valuation request for ' + $('#f-addr').value.trim() + ' (' + $('#f-when').value.toLowerCase() + ') is ready to send.';
+      form.hidden = true; done.hidden = false; $('#done-title').focus();
+    });
+  })();
+})();
+</script>
+</body>
+</html>
